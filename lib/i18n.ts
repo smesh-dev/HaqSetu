@@ -1,0 +1,188 @@
+import type { DocId } from "./rules/types";
+
+// Single source of truth for UI chrome in both languages. Engine content is
+// already bilingual (Localized); this covers buttons, labels, and page copy.
+
+export type Lang = "en" | "hi";
+
+export const T = {
+  en: {
+    // brand / nav
+    tagline: "The benefits you're owed — found, explained, claimed.",
+    navHome: "Home",
+    navSchemes: "Find benefits",
+    navDocs: "My documents",
+    navTracker: "Tracker",
+    trust: "Free guidance. We never ask for money. A government officer makes the final decision.",
+    privacyChip: "Private — stays on your device",
+
+    // home
+    homeHeadline: "One place to claim every benefit you're owed.",
+    homeSub: "Find the government schemes you may be entitled to, get your documents in order so you're not rejected, and track each application to the end — in plain Hindi or English.",
+    homeStart: "Find my benefits",
+    homeHow: "How it works",
+    step1Title: "1 · Find what you're owed",
+    step1Body: "Answer a few simple, icon-based questions. A rules engine — not a guess — matches you to real schemes.",
+    step2Title: "2 · Get rejection-proof",
+    step2Body: "Add the documents you hold. We catch the exact errors (name mismatch, Aadhaar–bank seeding) that get applications rejected even after approval.",
+    step3Title: "3 · Track to the finish",
+    step3Body: "Save each application and follow it from 'to start' to 'money received' — with the next step always clear.",
+    privacyTitle: "Private by design",
+    privacyBody: "Your documents and details never leave this device — they're stored only in this browser, never uploaded. The benefit calculations run on your phone. Only an optional plain-language summary (no ID numbers) is sent for the AI explanation, and you can turn that off.",
+    engineTitle: "Not a chatbot — a benefits engine.",
+    engineBody: "A rules engine checks your details against 11 real government schemes and their official criteria, maps which document unlocks which benefit, and audits your papers for the errors that cause rejection. AI only reads your story and explains the result — it never decides your eligibility.",
+    pillEngine: "Rules engine", pillCited: "Every rule cited", pillOffline: "Runs on your device",
+    openSchemes: "Find my benefits", openDocs: "Check my documents", openTracker: "Track applications",
+
+    // intake (schemes)
+    describe: "Tell us about yourself in your own words — or just tap the buttons below.",
+    placeholder: "e.g. I am a widow in a village in Bihar, I have two children in school, and I only have an Aadhaar card.",
+    understand: "Understand my situation", reading: "Reading…",
+    tryPersona: "See an example:",
+    whoTitle: "Who are you?", category: "Your community", age: "Age", gender: "Gender", state: "State",
+    income: "Family income per year (₹) — leave blank if unsure",
+    situationTitle: "Your situation (tap all that apply)",
+    submit: "Show what I can get", finding: "Finding your benefits…",
+    docsHint: "Benefits depend on the documents you have.",
+    editDocs: "Edit my documents →",
+
+    // results
+    resultsFor: "Here's what you may be able to claim",
+    entitledTo: "You may be entitled to", benefitsWord: "benefits",
+    perYear: "about ₹{v} per year", plusOneTime: "+ one-time help",
+    claimNow: "Claim right now", blockedBy: "unlock with documents",
+    unlockPathTitle: "Your unlock path", unlockPathBody: "Get these papers in this order — each one opens more benefits:", opens: "opens",
+    unlockTitle: "One paper unlocks the most", unlockBody: "Get this first — it opens up {n} of your benefits:", unlockCta: "Where to get it",
+    youMayGet: "You may get this", worthChecking: "Worth checking", tellMore: "Tell us a bit more", notNow: "Not a match right now",
+    stillNeed: "You still need", applyAt: "Where to apply", showReason: "Why we say this (rules engine)",
+    planTitle: "Your simple step-by-step plan", explainTitle: "In plain words",
+    explainNote: "This restates the result above. The AI never decides — a rules engine does.",
+    aiConsent: "Show a plain-language AI summary (sends a short summary, no ID numbers)",
+    sources: "Where these rules come from", verify: "Open", reset: "Start over",
+    trackThis: "Track this", tracked: "Tracking ✓",
+
+    // documents / DigiLocker
+    docsTitle: "My documents",
+    docsLead: "Add the documents you already have. This is your private locker — nothing is uploaded.",
+    importDigi: "Import from DigiLocker", importing: "Connecting…", importNote: "Demo: fills the documents a typical DigiLocker holds. In production this uses DigiLocker's consent-based API — files still never touch our servers.",
+    haveQ: "Which papers do you already have?",
+    detailsTitle: "Details that prevent rejection",
+    detailsHint: "Add these so we can catch the errors that get applications rejected or stop the money — even after approval.",
+    nameOnDoc: "Name exactly as printed on", seedQ: "Is your Aadhaar linked to this bank for payments (DBT)?",
+    dormantQ: "No transaction in this account for over a year?", mobileQ: "Is a mobile number linked to your Aadhaar?",
+    nclQ: "Does your OBC certificate say 'Non-Creamy-Layer'?", incomeYearQ: "Year your income certificate was issued",
+    ifscLabel: "Bank IFSC code (optional)", yes: "Yes", no: "No", unsure: "Not sure",
+    readyTitle: "Will it get rejected? Document check", readyBody: "We check your details for the errors that silently reject forms or stop the payment — even after you're approved.",
+    readyScore: "Ready to apply", allClear: "No rejection risks found — you look ready to apply. Still confirm at a CSC.",
+    fixLabel: "Do this:", sevBlocker: "Will cause rejection", sevWarning: "Risky — check", sevInfo: "Good to know",
+    addFirst: "Add your documents above to run the rejection check.",
+
+    // tracker
+    trackerTitle: "Application tracker",
+    trackerLead: "Track each benefit from start to money-in-hand. Saved only on this device.",
+    noTracked: "Nothing tracked yet. Find your benefits, then tap 'Track this' on any you want to pursue.",
+    addEligible: "Add my eligible benefits",
+    statusOf: "Status", nextStep: "Next step", remove: "Remove", notePh: "Add a note (e.g. applied at CSC on 5th)",
+    st_to_start: "To start", st_applied: "Applied", st_under_review: "Under verification", st_approved: "Approved", st_received: "Money received", st_rejected: "Rejected",
+    progress: "{done} of {total} done",
+
+    // guided AI intake
+    guidedTitle: "Answer a few smart questions",
+    askedBadge: "Chosen by AI",
+    guidedWhy: "Asked because it could open up {n} more benefit(s).",
+    guidedDone: "I have what I need — see your benefits.",
+    seeBenefits: "See my benefits",
+    soFar: "Benefits found so far: {n}",
+    orForm: "Or fill the details yourself",
+
+    // misc
+    savedNote: "Saved on this device.", clearSaved: "Clear all my data", printPlan: "Save / print my plan",
+    docNames: {
+      aadhaar: "Aadhaar card", bank: "Bank account", caste: "Caste certificate", income: "Income certificate",
+      ews: "EWS certificate", domicile: "Domicile certificate", ration_bpl: "Ration card", disability_udid: "Disability certificate",
+    } as Record<DocId, string>,
+  },
+  hi: {
+    tagline: "आपका हक़ — ढूँढें, समझें, और पाएँ।",
+    navHome: "होम", navSchemes: "लाभ ढूँढें", navDocs: "मेरे दस्तावेज़", navTracker: "ट्रैकर",
+    trust: "मुफ़्त मार्गदर्शन। हम कभी पैसे नहीं माँगते। अंतिम निर्णय सरकारी अधिकारी करते हैं।",
+    privacyChip: "निजी — आपके डिवाइस पर",
+
+    homeHeadline: "हर वह लाभ जो आपका हक़ है — एक ही जगह पाएँ।",
+    homeSub: "जिन सरकारी योजनाओं के आप पात्र हो सकते हैं उन्हें ढूँढें, अपने दस्तावेज़ ठीक करें ताकि आवेदन अस्वीकार न हो, और हर आवेदन को अंत तक ट्रैक करें — सरल हिंदी या अंग्रेज़ी में।",
+    homeStart: "मेरे लाभ ढूँढें", homeHow: "यह कैसे काम करता है",
+    step1Title: "1 · जानें क्या आपका हक़ है", step1Body: "कुछ सरल, चित्र-आधारित सवालों के जवाब दें। एक नियम-इंजन — अंदाज़ा नहीं — आपको असली योजनाओं से मिलाता है।",
+    step2Title: "2 · अस्वीकृति से बचें", step2Body: "अपने दस्तावेज़ जोड़ें। हम वे गलतियाँ (नाम बेमेल, आधार–बैंक सीडिंग) पकड़ते हैं जो मंज़ूरी के बाद भी आवेदन अस्वीकार कराती हैं।",
+    step3Title: "3 · अंत तक ट्रैक करें", step3Body: "हर आवेदन सहेजें और 'शुरू करना है' से 'पैसा मिल गया' तक उसे ट्रैक करें — अगला कदम हमेशा स्पष्ट।",
+    privacyTitle: "डिज़ाइन से ही निजी",
+    privacyBody: "आपके दस्तावेज़ और विवरण इस डिवाइस से कभी बाहर नहीं जाते — वे केवल इसी ब्राउज़र में सहेजे जाते हैं, कभी अपलोड नहीं होते। लाभ की गणना आपके फ़ोन पर होती है। केवल एक वैकल्पिक सरल-भाषा सारांश (बिना किसी ID नंबर के) AI व्याख्या हेतु भेजा जाता है, जिसे आप बंद कर सकते हैं।",
+    engineTitle: "चैटबॉट नहीं — एक लाभ-इंजन।",
+    engineBody: "एक नियम-इंजन आपकी जानकारी को 11 असली सरकारी योजनाओं व उनके आधिकारिक मानदंडों से जाँचता है, बताता है कि कौन सा दस्तावेज़ कौन सा लाभ खोलता है, और आपके कागज़ों में अस्वीकृति वाली गलतियाँ जाँचता है। AI सिर्फ़ आपकी बात पढ़ता है और परिणाम समझाता है — पात्रता वह कभी तय नहीं करता।",
+    pillEngine: "नियम-इंजन", pillCited: "हर नियम का स्रोत", pillOffline: "आपके डिवाइस पर चलता है",
+    openSchemes: "मेरे लाभ ढूँढें", openDocs: "मेरे दस्तावेज़ जाँचें", openTracker: "आवेदन ट्रैक करें",
+
+    describe: "अपने बारे में अपने शब्दों में बताएँ — या नीचे दिए बटन दबाएँ।",
+    placeholder: "उदा. मैं बिहार के गाँव में विधवा हूँ, मेरे दो बच्चे स्कूल जाते हैं, और मेरे पास सिर्फ़ आधार कार्ड है।",
+    understand: "मेरी स्थिति समझें", reading: "पढ़ रहे हैं…",
+    tryPersona: "एक उदाहरण देखें:",
+    whoTitle: "आप कौन हैं?", category: "आपका समुदाय", age: "उम्र", gender: "लिंग", state: "राज्य",
+    income: "सालाना पारिवारिक आय (₹) — पता न हो तो खाली छोड़ें",
+    situationTitle: "आपकी स्थिति (जो लागू हो दबाएँ)",
+    submit: "देखें मुझे क्या मिल सकता है", finding: "आपके लाभ ढूँढ रहे हैं…",
+    docsHint: "लाभ आपके पास मौजूद दस्तावेज़ों पर निर्भर करते हैं।",
+    editDocs: "मेरे दस्तावेज़ बदलें →",
+
+    resultsFor: "आप ये लाभ पा सकते हैं",
+    entitledTo: "आप पा सकते हैं", benefitsWord: "लाभ",
+    perYear: "लगभग ₹{v} प्रति वर्ष", plusOneTime: "+ एकमुश्त सहायता",
+    claimNow: "अभी पा सकते हैं", blockedBy: "दस्तावेज़ से खुलेंगे",
+    unlockPathTitle: "आपका अनलॉक रास्ता", unlockPathBody: "ये कागज़ इसी क्रम में बनवाएँ — हर एक से और लाभ खुलते हैं:", opens: "खोलता है",
+    unlockTitle: "एक कागज़ सबसे ज़्यादा खोलता है", unlockBody: "यह पहले बनवाएँ — इससे आपके {n} लाभ खुलते हैं:", unlockCta: "कहाँ बनवाएँ",
+    youMayGet: "यह मिल सकता है", worthChecking: "जाँचने योग्य", tellMore: "थोड़ा और बताएँ", notNow: "अभी मेल नहीं खाता",
+    stillNeed: "अभी ज़रूरत है", applyAt: "कहाँ आवेदन करें", showReason: "हम ऐसा क्यों कहते हैं (नियम-इंजन)",
+    planTitle: "आपकी आसान कदम-दर-कदम योजना", explainTitle: "सरल शब्दों में",
+    explainNote: "यह ऊपर दिए परिणाम को दोहराता है। AI निर्णय नहीं लेता — नियम-इंजन लेता है।",
+    aiConsent: "सरल-भाषा AI सारांश दिखाएँ (छोटा सारांश भेजता है, कोई ID नंबर नहीं)",
+    sources: "ये नियम कहाँ से आते हैं", verify: "खोलें", reset: "फिर से शुरू करें",
+    trackThis: "इसे ट्रैक करें", tracked: "ट्रैक हो रहा है ✓",
+
+    docsTitle: "मेरे दस्तावेज़",
+    docsLead: "आपके पास जो दस्तावेज़ हैं उन्हें जोड़ें। यह आपका निजी लॉकर है — कुछ भी अपलोड नहीं होता।",
+    importDigi: "डिजीलॉकर से लाएँ", importing: "जोड़ रहे हैं…", importNote: "डेमो: वे दस्तावेज़ भरता है जो आमतौर पर डिजीलॉकर में होते हैं। असल में यह डिजीलॉकर के सहमति-आधारित API से होता है — फ़ाइलें फिर भी हमारे सर्वर पर नहीं आतीं।",
+    haveQ: "आपके पास कौन से कागज़ हैं?",
+    detailsTitle: "वे विवरण जो अस्वीकृति रोकते हैं",
+    detailsHint: "ये जोड़ें ताकि हम वे गलतियाँ पकड़ सकें जो आवेदन अस्वीकार कराती हैं या पैसा रोक देती हैं — मंज़ूरी के बाद भी।",
+    nameOnDoc: "नाम बिल्कुल जैसा छपा है —", seedQ: "क्या आपका आधार इस बैंक से भुगतान (DBT) के लिए जुड़ा है?",
+    dormantQ: "क्या इस खाते में एक साल से कोई लेन-देन नहीं हुआ?", mobileQ: "क्या आपके आधार से मोबाइल नंबर जुड़ा है?",
+    nclQ: "क्या आपके OBC प्रमाण पत्र पर 'नॉन-क्रीमी-लेयर' लिखा है?", incomeYearQ: "आय प्रमाण पत्र किस वर्ष बना",
+    ifscLabel: "बैंक IFSC कोड (वैकल्पिक)", yes: "हाँ", no: "नहीं", unsure: "पता नहीं",
+    readyTitle: "क्या यह अस्वीकार होगा? दस्तावेज़ जाँच", readyBody: "हम आपके विवरण में वे गलतियाँ जाँचते हैं जो चुपचाप फॉर्म अस्वीकार करती हैं या भुगतान रोक देती हैं — मंज़ूरी के बाद भी।",
+    readyScore: "आवेदन के लिए तैयार", allClear: "कोई अस्वीकृति जोखिम नहीं मिला — आप तैयार लगते हैं। फिर भी CSC पर पुष्टि करें।",
+    fixLabel: "यह करें:", sevBlocker: "अस्वीकृति का कारण बनेगा", sevWarning: "जोखिम — जाँचें", sevInfo: "जानना अच्छा है",
+    addFirst: "अस्वीकृति जाँच चलाने के लिए ऊपर अपने दस्तावेज़ जोड़ें।",
+
+    trackerTitle: "आवेदन ट्रैकर",
+    trackerLead: "हर लाभ को शुरू से पैसा मिलने तक ट्रैक करें। केवल इसी डिवाइस पर सहेजा जाता है।",
+    noTracked: "अभी कुछ ट्रैक नहीं हो रहा। अपने लाभ ढूँढें, फिर जिसे पाना हो उस पर 'इसे ट्रैक करें' दबाएँ।",
+    addEligible: "मेरे पात्र लाभ जोड़ें",
+    statusOf: "स्थिति", nextStep: "अगला कदम", remove: "हटाएँ", notePh: "नोट जोड़ें (उदा. 5 तारीख को CSC पर आवेदन किया)",
+    st_to_start: "शुरू करना है", st_applied: "आवेदन किया", st_under_review: "सत्यापन में", st_approved: "मंज़ूर", st_received: "पैसा मिल गया", st_rejected: "अस्वीकृत",
+    progress: "{total} में से {done} पूरे",
+
+    guidedTitle: "कुछ समझदार सवालों के जवाब दें",
+    askedBadge: "AI द्वारा चुना गया",
+    guidedWhy: "यह इसलिए पूछा क्योंकि इससे {n} और लाभ खुल सकते हैं।",
+    guidedDone: "मेरे पास पर्याप्त जानकारी है — अपने लाभ देखें।",
+    seeBenefits: "मेरे लाभ देखें",
+    soFar: "अब तक मिले लाभ: {n}",
+    orForm: "या ख़ुद विवरण भरें",
+
+    savedNote: "इस डिवाइस पर सहेजा गया।", clearSaved: "मेरा सारा डेटा मिटाएँ", printPlan: "मेरी योजना सहेजें / प्रिंट करें",
+    docNames: {
+      aadhaar: "आधार कार्ड", bank: "बैंक खाता", caste: "जाति प्रमाण पत्र", income: "आय प्रमाण पत्र",
+      ews: "EWS प्रमाण पत्र", domicile: "निवास प्रमाण पत्र", ration_bpl: "राशन कार्ड", disability_udid: "दिव्यांगता प्रमाण पत्र",
+    } as Record<DocId, string>,
+  },
+};
+
+export type Dict = (typeof T)["en"];

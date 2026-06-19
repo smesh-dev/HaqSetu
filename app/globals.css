@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f6f7fb;
+  --foreground: #0f172a;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+}
+
+html,
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Noto Sans Devanagari", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Subtle reasoning-trace connector line */
+.trace-step {
+  position: relative;
+  padding-left: 1.1rem;
+}
+.trace-step::before {
+  content: "";
+  position: absolute;
+  left: 0.32rem;
+  top: 0.55rem;
+  width: 7px;
+  height: 7px;
+  border-radius: 9999px;
+  background: #059669;
+}
+.trace-step:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: 0.59rem;
+  top: 1.1rem;
+  bottom: -0.4rem;
+  width: 1px;
+  background: #a7f3d0;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.fade-up { animation: fadeUp 0.35s ease both; }
+
+/* Printable application kit: hide intake/chrome, keep the plan clean on paper. */
+@media print {
+  .no-print { display: none !important; }
+  body { background: #fff; }
+  main { max-width: 100% !important; padding: 0 !important; }
+  section { box-shadow: none !important; break-inside: avoid; border: 1px solid #e2e8f0; }
+  details { display: block; }
+  details > div { display: block !important; }
+}
