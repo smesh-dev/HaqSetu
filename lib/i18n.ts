@@ -68,10 +68,13 @@ export const T = {
     sources: "Where these rules come from", verify: "Open", reset: "Start over",
     trackThis: "Track this", tracked: "Tracking ✓",
 
-    // documents / DigiLocker
+    // documents / upload
     docsTitle: "My documents",
     docsLead: "Add the documents you already have. This is your private locker — nothing is uploaded.",
-    importDigi: "Import from DigiLocker", importing: "Connecting…", importNote: "Demo: fills the documents a typical DigiLocker holds. In production this uses DigiLocker's consent-based API — files still never touch our servers.",
+    uploadTitle: "Upload from your device",
+    uploadHint: "Pick images, PDFs, and other files from your phone or computer.",
+    uploadButton: "Choose files",
+    uploadNote: "Accepted: images, PDFs, DOC/DOCX, TXT, and other common document files.",
     haveQ: "Which papers do you already have?",
     detailsTitle: "Details that prevent rejection",
     detailsHint: "Add these so we can catch the errors that get applications rejected or stop the money — even after approval.",
@@ -162,7 +165,10 @@ export const T = {
 
     docsTitle: "मेरे दस्तावेज़",
     docsLead: "आपके पास जो दस्तावेज़ हैं उन्हें जोड़ें। यह आपका निजी लॉकर है — कुछ भी अपलोड नहीं होता।",
-    importDigi: "डिजीलॉकर से लाएँ", importing: "जोड़ रहे हैं…", importNote: "डेमो: वे दस्तावेज़ भरता है जो आमतौर पर डिजीलॉकर में होते हैं। असल में यह डिजीलॉकर के सहमति-आधारित API से होता है — फ़ाइलें फिर भी हमारे सर्वर पर नहीं आतीं।",
+    uploadTitle: "अपने डिवाइस से अपलोड करें",
+    uploadHint: "अपने फोन या कंप्यूटर से फोटो, PDF और दूसरे दस्तावेज़ चुनें।",
+    uploadButton: "फ़ाइलें चुनें",
+    uploadNote: "स्वीकृत: फोटो, PDF, DOC/DOCX, TXT और आम दस्तावेज़ फ़ाइलें।",
     haveQ: "आपके पास कौन से कागज़ हैं?",
     detailsTitle: "वे विवरण जो अस्वीकृति रोकते हैं",
     detailsHint: "ये जोड़ें ताकि हम वे गलतियाँ पकड़ सकें जो आवेदन अस्वीकार कराती हैं या पैसा रोक देती हैं — मंज़ूरी के बाद भी।",

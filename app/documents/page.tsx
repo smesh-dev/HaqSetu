@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ChangeEvent } from "react";
 import { useProfile } from "@/lib/store";
 import { Nav, BigChip, YNU, ReadinessCard, DOC_ICON, ALL_DOCS } from "@/components/shared";
 import { T, type Lang } from "@/lib/i18n";
@@ -12,8 +12,7 @@ export default function DocumentsPage() {
   const lang = profile.language;
   const setLang = (l: Lang) => setProfile((p) => ({ ...p, language: l }));
   const t = T[lang];
-  const [importing, setImporting] = useState(false);
-  const [imported, setImported] = useState(false);
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
 
   function toggleDoc(d: DocId) {
     setProfile((p) => ({ ...p, documentsHave: p.documentsHave.includes(d) ? p.documentsHave.filter((x) => x !== d) : [...p.documentsHave, d] }));
@@ -24,17 +23,16 @@ export default function DocumentsPage() {
   function setDD(patch: Partial<DocDetails>) {
     setProfile((p) => ({ ...p, docDetails: { names: {}, ...(p.docDetails ?? {}), ...patch } }));
   }
-
-  // Simulated DigiLocker import. In production this uses DigiLocker's
-  // consent-based API; even then, document files never touch our servers — we
-  // only read which documents exist. Here we just mark a typical set held.
-  function importDigiLocker() {
-    setImporting(true);
-    setTimeout(() => {
-      setProfile((p) => ({ ...p, documentsHave: Array.from(new Set([...p.documentsHave, "aadhaar", "bank", "ration_bpl", "domicile"])) as DocId[] }));
-      setImporting(false);
-      setImported(true);
-    }, 900);
+  function handleUpload(e: ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []);
+    if (!files.length) return;
+    setUploadedFiles((prev) => [...prev, ...files]);
+    e.target.value = "";
+  }
+  function formatSize(bytes: number) {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   }
 
   const assessment = runAssessment({ ...profile, language: lang });
@@ -50,13 +48,29 @@ export default function DocumentsPage() {
           <p className="mt-2 inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-1 text-[11px] font-semibold text-emerald-700 ring-1 ring-emerald-200">🔒 {t.privacyChip}</p>
         </section>
 
-        {/* DigiLocker import */}
+        {/* upload from device */}
         <section className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-          <button onClick={importDigiLocker} disabled={importing} className="flex items-center gap-2 rounded-2xl bg-[#1b4ba3] px-4 py-2.5 text-sm font-bold text-white transition hover:opacity-90 disabled:opacity-50">
-            <span>📲</span> {importing ? t.importing : t.importDigi}
-          </button>
-          {imported && <p className="mt-2 text-[12px] font-medium text-emerald-700">✓ {lang === "hi" ? "डिजीलॉकर से दस्तावेज़ जुड़ गए।" : "Documents added from DigiLocker."}</p>}
-          <p className="mt-2 text-[11px] text-slate-400">{t.importNote}</p>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-[15px] font-bold text-slate-800">{t.uploadTitle}</h2>
+              <p className="mt-1 text-[12px] text-slate-500">{t.uploadHint}</p>
+            </div>
+            <label htmlFor="device-upload" className="inline-flex cursor-pointer items-center justify-center rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-emerald-700">
+              📁 {t.uploadButton}
+            </label>
+            <input id="device-upload" type="file" multiple accept="image/*,.pdf,.doc,.docx,.txt,.rtf" className="hidden" onChange={handleUpload} />
+          </div>
+          {uploadedFiles.length > 0 && (
+            <ul className="mt-3 space-y-2 rounded-2xl bg-slate-50 p-3 ring-1 ring-slate-200">
+              {uploadedFiles.map((file, index) => (
+                <li key={`${file.name}-${index}`} className="flex items-center justify-between gap-3 text-[12px] text-slate-700">
+                  <span className="truncate">{file.name}</span>
+                  <span className="shrink-0 text-slate-500">{formatSize(file.size)}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+          <p className="mt-2 text-[11px] text-slate-400">{t.uploadNote}</p>
         </section>
 
         {/* vault */}
