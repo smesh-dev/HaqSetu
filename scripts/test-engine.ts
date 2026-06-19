@@ -45,6 +45,9 @@ const sch = imran.matches.find((m) => m.id === "scholarship_postmatric");
 check("Imran's son matched the post-matric scholarship", !!sch);
 check("Imran scholarship blocked by missing income certificate", !!sch && sch.missingDocs.includes("income"));
 check("Imran scholarship carries the OBC-NCL trap tip", !!sch?.missingDocTip && /NCL/.test(sch!.missingDocTip!.en));
+check("Student scenario ranks the scholarship before generic food benefits", imran.matches[0]?.id === "scholarship_postmatric");
+const imranQuestion = nextQuestion(imran.profile, []);
+check("Student scenario asks a scholarship-relevant question first", !!imranQuestion && ["income_doc", "income_bucket", "child"].includes(imranQuestion.id));
 
 const govind = id("govind");
 check("Govind (small farmer) matched PM-KISAN", govind.matches.some((m) => m.id === "pmkisan"));

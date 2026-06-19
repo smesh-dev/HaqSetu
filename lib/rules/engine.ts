@@ -140,13 +140,42 @@ function findMissingFields(p: Profile): string[] {
   return m;
 }
 
+function scenarioRelevance(profile: Profile, scheme: SchemeMatch): number {
+  let score = 0;
+
+  if (profile.household.hasSchoolGoingChild || (profile.age != null && profile.age >= 12 && profile.age <= 25)) {
+    if (scheme.need === "education") score += 100;
+    if (scheme.need === "income_support") score += 20;
+  }
+
+  if (profile.household.isPregnantOrLactating) {
+    if (scheme.need === "maternity") score += 100;
+    if (scheme.need === "health") score += 25;
+  }
+
+  if (profile.household.isWidow || profile.disability === "severe") {
+    if (scheme.need === "pension") score += 100;
+  }
+
+  if (profile.occupation === "small_farmer" || (typeof profile.landAcres === "number" && profile.landAcres > 0)) {
+    if (scheme.need === "income_support") score += 80;
+    if (scheme.need === "work") score += 30;
+  }
+
+  if (profile.household.lacksPuccaHouse) {
+    if (scheme.need === "housing") score += 90;
+  }
+
+  return score;
+}
+
 export function runAssessment(profile: Profile): Assessment {
   const all = buildMatch(profile);
   const matches = all
     .filter((m) => ELIGIBLE.has(m.verdict))
     .sort((a, b) => {
       const rank = (v: string) => (v === "likely_eligible" ? 0 : 1);
-      return rank(a.verdict) - rank(b.verdict) || b.annualValue - a.annualValue;
+      return rank(a.verdict) - rank(b.verdict) || scenarioRelevance(profile, b) - scenarioRelevance(profile, a) || b.annualValue - a.annualValue;
     });
   const otherSchemes = all.filter((m) => !ELIGIBLE.has(m.verdict));
   const docGaps = buildDocGaps(profile, matches);

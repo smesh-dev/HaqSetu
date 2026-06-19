@@ -75,9 +75,31 @@ export function normalizeProfile(raw: unknown): Profile {
 // (kept in English; the model writes its reply in the user's language).
 // This is the ONLY thing the explainer sees — it cannot invent beyond it.
 export function assessmentToFacts(a: Assessment): string {
+  const p = a.profile;
   const lines: string[] = [];
-  if (a.estimatedAnnualValue > 0)
+  const context: string[] = [];
+
+  if (p.age != null) context.push(`age ${p.age}`);
+  if (p.gender) context.push(p.gender === "female" ? "woman/female" : p.gender === "male" ? "man/male" : "other gender");
+  if (p.state) context.push(p.state === "CENTRAL" ? "central/other state" : p.state);
+  if (p.category && p.category !== "GENERAL") context.push(p.category);
+  if (p.annualHouseholdIncome != null) context.push(`annual household income about ₹${p.annualHouseholdIncome.toLocaleString("en-IN")}`);
+  if (p.bpl === true) context.push("BPL/low-income family");
+  if (p.occupation) context.push(p.occupation.replaceAll("_", " "));
+  if (p.household.hasSchoolGoingChild) context.push("child in school or college");
+  if (p.household.isPregnantOrLactating) context.push("pregnant or new mother");
+  if (p.household.isWidow) context.push("widow");
+  if (p.household.lacksPuccaHouse) context.push("no pucca house");
+  if (p.household.lacksLpg) context.push("no LPG");
+  if (p.household.isRural) context.push("lives in a village or rural area");
+  if (p.documentsHave.length) context.push(`already has: ${p.documentsHave.join(", ")}`);
+
+  if (context.length) {
+    lines.push(`CURRENT SITUATION: ${context.join("; ")}.`);
+  }
+  if (a.estimatedAnnualValue > 0) {
     lines.push(`Estimated recurring cash benefits if eligible: about ₹${a.estimatedAnnualValue.toLocaleString("en-IN")} per year${a.hasOneTimeBenefits ? ", plus one-time benefits" : ""}.`);
+  }
   lines.push(`Of these, ${a.coverage.claimableNowCount} can be claimed right now; ${a.coverage.blockedCount} are blocked by missing documents.`);
   lines.push("SCHEMES THEY MAY BE ENTITLED TO:");
   for (const m of a.matches) lines.push(`  - ${m.name} (${m.benefit.en}): ${m.verdict.replace(/_/g, " ")}. ${m.headline.en}`);
@@ -100,16 +122,36 @@ export function assessmentToFacts(a: Assessment): string {
 export function fallbackExplanation(a: Assessment, lang: "en" | "hi"): string {
   const v = a.estimatedAnnualValue.toLocaleString("en-IN");
   const top = a.docGaps[0];
+  const p = a.profile;
+  const scenario = [] as string[];
+  if (p.household.hasSchoolGoingChild) scenario.push(lang === "hi" ? "स्कूल/कॉलेज में पढ़ने वाला बच्चा" : "a child in school or college");
+  if (p.household.isPregnantOrLactating) scenario.push(lang === "hi" ? "गर्भवती/नई माँ" : "pregnant or new mother");
+  if (p.household.isWidow) scenario.push(lang === "hi" ? "विधवा" : "widow");
+  if (p.occupation) scenario.push(p.occupation.replaceAll("_", " "));
+  if (p.annualHouseholdIncome != null) scenario.push(lang === "hi" ? `₹${p.annualHouseholdIncome.toLocaleString("en-IN")} सालाना आय` : `about ₹${p.annualHouseholdIncome.toLocaleString("en-IN")} annual income`);
+
   if (lang === "hi") {
     const parts: string[] = [];
-    parts.push(a.matches.length ? `अच्छी खबर — आप ${a.matches.length} लाभ के पात्र हो सकते हैं: ${a.matches.map((m) => m.hindiName).join(", ")}।` : "आपने जो बताया उससे अभी कोई योजना मेल नहीं खाई — थोड़ी और जानकारी मदद कर सकती है।");
+    if (a.matches.length) {
+      const first = a.matches.map((m) => m.hindiName).slice(0, 3).join(", ");
+      parts.push(`अच्छी खबर — आपके लिए ${first} जैसे लाभ सबसे ज़्यादा Relevant लग सकते हैं।`);
+    } else {
+      parts.push("आपके बताये अनुसार अभी कोई स्पष्ट योजना नहीं दिख रही — थोड़ी और जानकारी मदद कर सकती है।");
+    }
+    if (scenario.length) parts.push(`यह खास तौर पर आपके ${scenario.join(", ")} वाले हालात के हिसाब से देखा गया है।`);
     if (a.estimatedAnnualValue > 0) parts.push(`ये मिलाकर लगभग ₹${v} सालाना के हो सकते हैं${a.hasOneTimeBenefits ? ", साथ ही एकमुश्त सहायता" : ""}।`);
     if (top) parts.push(`सबसे पहले अपना ${top.hindiName} बनवाना सबसे उपयोगी है — इससे ${top.unlocksCount} लाभ खुलते हैं।`);
     parts.push("आप अपनी ग्राम पंचायत या नज़दीकी CSC पर मुफ़्त मदद ले सकते हैं। भरोसा करने से पहले वहाँ पुष्टि ज़रूर करें।");
     return parts.join(" ");
   }
   const parts: string[] = [];
-  parts.push(a.matches.length ? `Good news — you may be entitled to ${a.matches.length} benefit${a.matches.length > 1 ? "s" : ""}: ${a.matches.map((m) => m.name).join(", ")}.` : "Based on what you told us, we couldn't match a scheme yet — a few more details may help.");
+  if (a.matches.length) {
+    const first = a.matches.map((m) => m.name).slice(0, 3).join(", ");
+    parts.push(`Good news — the most relevant options for your case appear to be ${first}.`);
+  } else {
+    parts.push("Based on what you told us, we couldn't match a scheme yet — a few more details may help.");
+  }
+  if (scenario.length) parts.push(`This is being read for your specific situation: ${scenario.join(", ")}.`);
   if (a.estimatedAnnualValue > 0) parts.push(`Together these may be worth around ₹${v} a year${a.hasOneTimeBenefits ? ", plus one-time help" : ""}.`);
   if (top) parts.push(`The most useful thing to get first is your ${top.name} — it helps unlock ${top.unlocksCount} of them.`);
   parts.push("You can get free help at your Gram Panchayat or a nearby Common Service Centre (CSC). Always confirm there before relying on this.");
