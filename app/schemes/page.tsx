@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useProfile, useTracked, useAIConsent, initialProfile, type TrackedApp } from "@/lib/store";
 import { Nav, Chip, BigChip, SITUATIONS, Hero, UnlockPath, TrapCard, BenefitCard } from "@/components/shared";
 import { T, type Lang } from "@/lib/i18n";
@@ -10,6 +10,64 @@ import { nextQuestion } from "@/lib/rules/inquiry";
 import { assessmentToFacts, fallbackExplanation } from "@/lib/profile";
 import { PERSONAS } from "@/lib/personas";
 import type { Assessment, Profile } from "@/lib/rules/types";
+
+type ParsedIntake = Partial<Omit<Profile, "household" | "documentsHave">> & {
+  household?: Partial<Profile["household"]>;
+  documentsHave?: Profile["documentsHave"];
+};
+
+interface BrowserSpeechRecognition {
+  lang: string;
+  continuous: boolean;
+  interimResults: boolean;
+  onresult: ((event: SpeechRecognitionEvent) => void) | null;
+  onerror: ((event: { error: string }) => void) | null;
+  onend: (() => void) | null;
+  start(): void;
+  stop(): void;
+  abort(): void;
+}
+
+interface SpeechRecognitionEvent {
+  results: SpeechRecognitionResultList;
+}
+
+type SpeechRecognitionConstructor = new () => BrowserSpeechRecognition;
+
+function speechRecognitionConstructor(): SpeechRecognitionConstructor | undefined {
+  if (typeof window === "undefined") return undefined;
+  const speechWindow = window as typeof window & {
+    SpeechRecognition?: SpeechRecognitionConstructor;
+    webkitSpeechRecognition?: SpeechRecognitionConstructor;
+  };
+  return speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition;
+}
+
+function parsedFacts(p: ParsedIntake, lang: Lang): string[] {
+  const facts: string[] = [];
+  const hi = lang === "hi";
+  if (p.age !== undefined) facts.push(hi ? `उम्र ${p.age}` : `Age ${p.age}`);
+  if (p.gender) facts.push(hi ? ({ female: "महिला", male: "पुरुष", other: "अन्य" }[p.gender]) : ({ female: "Woman", male: "Man", other: "Other" }[p.gender]));
+  if (p.state) facts.push(p.state === "BIHAR" ? (hi ? "बिहार" : "Bihar") : p.state === "RAJASTHAN" ? (hi ? "राजस्थान" : "Rajasthan") : (hi ? "अन्य राज्य" : "Other state"));
+  if (p.category) facts.push(p.category === "GENERAL" ? (hi ? "सामान्य वर्ग" : "General category") : p.category);
+  if (p.annualHouseholdIncome !== undefined) facts.push(hi ? `₹${p.annualHouseholdIncome.toLocaleString("en-IN")} सालाना आय` : `₹${p.annualHouseholdIncome.toLocaleString("en-IN")} annual income`);
+  if (p.bpl === true) facts.push(hi ? "BPL/गरीब परिवार" : "BPL/low-income family");
+  if (p.occupation) facts.push(p.occupation.replaceAll("_", " "));
+  const householdLabels: Partial<Record<keyof Profile["household"], [string, string]>> = {
+    isWidow: ["Widow", "विधवा"],
+    isPregnantOrLactating: ["Pregnant or nursing", "गर्भवती या स्तनपान"],
+    hasSchoolGoingChild: ["Child in school", "स्कूल जाने वाला बच्चा"],
+    hasElderly60Plus: ["Age 60+ at home", "घर में 60+ बुज़ुर्ग"],
+    lacksPuccaHouse: ["No pucca house", "पक्का घर नहीं"],
+    lacksLpg: ["No LPG", "LPG नहीं"],
+    isRural: ["Lives in a village", "गाँव में रहते हैं"],
+  };
+  for (const [key, value] of Object.entries(p.household ?? {})) {
+    if (value === true) facts.push(householdLabels[key as keyof Profile["household"]]?.[hi ? 1 : 0] ?? key);
+  }
+  if (p.documentsHave?.length) facts.push(hi ? `${p.documentsHave.length} दस्तावेज़ बताए` : `${p.documentsHave.length} document${p.documentsHave.length > 1 ? "s" : ""} mentioned`);
+  return facts;
+}
 
 export default function SchemesPage() {
   const [profile, setProfile] = useProfile();
@@ -23,32 +81,100 @@ export default function SchemesPage() {
   const [asked, setAsked] = useState<string[]>([]);
   const [parsing, setParsing] = useState(false);
   const [parseSource, setParseSource] = useState("");
+  const [parseSummary, setParseSummary] = useState<string[]>([]);
+  const [parseError, setParseError] = useState("");
+  const [speechSupported, setSpeechSupported] = useState(true);
+  const [listening, setListening] = useState(false);
+  const [speechError, setSpeechError] = useState("");
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<Assessment | null>(null);
   const [explanation, setExplanation] = useState<{ text: string; source: string } | null>(null);
   const resultRef = useRef<HTMLDivElement>(null);
+  const recognitionRef = useRef<BrowserSpeechRecognition | null>(null);
+  const speechBaseRef = useRef("");
+
+  useEffect(() => {
+    setSpeechSupported(Boolean(speechRecognitionConstructor()));
+    return () => recognitionRef.current?.abort();
+  }, []);
+
+  function toggleSpeech() {
+    if (listening) {
+      recognitionRef.current?.stop();
+      return;
+    }
+
+    const Recognition = speechRecognitionConstructor();
+    if (!Recognition) {
+      setSpeechSupported(false);
+      setSpeechError(t.micUnsupported);
+      return;
+    }
+
+    setSpeechError("");
+    setParseError("");
+    setParseSource("");
+    setParseSummary([]);
+    speechBaseRef.current = freeText.trim();
+    const recognition = new Recognition();
+    recognition.lang = lang === "hi" ? "hi-IN" : "en-IN";
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.onresult = (event) => {
+      let transcript = "";
+      for (let i = 0; i < event.results.length; i += 1) transcript += event.results[i][0]?.transcript ?? "";
+      const separator = speechBaseRef.current && transcript.trim() ? " " : "";
+      setFreeText(`${speechBaseRef.current}${separator}${transcript.trimStart()}`);
+    };
+    recognition.onerror = (event) => {
+      setSpeechError(event.error === "not-allowed" || event.error === "service-not-allowed" ? t.micPermission : t.micError);
+    };
+    recognition.onend = () => {
+      recognitionRef.current = null;
+      setListening(false);
+    };
+    recognitionRef.current = recognition;
+    try {
+      recognition.start();
+      setListening(true);
+    } catch {
+      recognitionRef.current = null;
+      setSpeechError(t.micError);
+    }
+  }
 
   async function handleParse() {
     if (!freeText.trim()) return;
+    recognitionRef.current?.stop();
     setParsing(true);
+    setParseError("");
+    setParseSource("");
+    setParseSummary([]);
     try {
       const res = await fetch("/api/parse", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text: freeText }) });
-      const data = await res.json();
-      if (data.parsed) {
-        const p = data.parsed;
-        setProfile((prev) => ({
-          ...prev,
-          category: p.category ?? prev.category, gender: p.gender ?? prev.gender, state: p.state ?? prev.state,
-          age: p.age ?? prev.age, annualHouseholdIncome: p.annualHouseholdIncome ?? prev.annualHouseholdIncome,
-          bpl: p.bpl ?? prev.bpl, occupation: p.occupation ?? prev.occupation, landAcres: p.landAcres ?? prev.landAcres,
-          disability: p.disability ?? prev.disability, household: { ...prev.household, ...(p.household ?? {}) },
-          documentsHave: p.documentsHave ? Array.from(new Set([...prev.documentsHave, ...p.documentsHave])) : prev.documentsHave,
-        }));
-        if (p.language) setLang(p.language);
-        setParseSource(data.source);
-      }
-    } catch {
-      /* ignore — the buttons still work */
+      const data = await res.json().catch(() => ({})) as { parsed?: ParsedIntake; source?: string; error?: string };
+      if (!res.ok) throw new Error(data.error || t.parseError);
+      if (!data.parsed) throw new Error(t.parseError);
+
+      const p = data.parsed;
+      const detectedLang: Lang = p.language === "hi" ? "hi" : p.language === "en" ? "en" : lang;
+      const nextProfile: Profile = {
+        ...initialProfile,
+        ...p,
+        language: detectedLang,
+        household: { ...initialProfile.household, ...(p.household ?? {}) },
+        documentsHave: Array.from(new Set(p.documentsHave ?? [])),
+      };
+      const facts = parsedFacts(p, detectedLang);
+      if (facts.length === 0) throw new Error(t.noDetailsDetected);
+      setProfile(nextProfile);
+      setParseSummary(facts);
+      setParseSource(data.source ?? "fallback");
+      setAsked([]);
+      setResult(null);
+      setExplanation(null);
+    } catch (error) {
+      setParseError(error instanceof Error && error.message ? error.message : t.parseError);
     } finally {
       setParsing(false);
     }
@@ -80,6 +206,8 @@ export default function SchemesPage() {
     setProfile({ ...initialProfile, ...p.profile });
     setFreeText(p.freeText);
     setParseSource("");
+    setParseSummary([]);
+    setParseError("");
     setAsked([]);
     setResult(null);
     setExplanation(null);
@@ -101,11 +229,21 @@ export default function SchemesPage() {
         {/* free-text intake */}
         <section className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200 no-print">
           <label className="block text-[15px] font-semibold text-slate-800">{t.describe}</label>
-          <textarea suppressHydrationWarning value={freeText} onChange={(e) => setFreeText(e.target.value)} rows={3} placeholder={t.placeholder} className="mt-2 w-full resize-none rounded-2xl border border-slate-300 p-3 text-[15px] outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200" />
+          <div className="relative mt-2">
+            <textarea suppressHydrationWarning value={freeText} onChange={(e) => { setFreeText(e.target.value); setParseSource(""); setParseSummary([]); setParseError(""); }} rows={3} placeholder={t.placeholder} className="w-full resize-none rounded-2xl border border-slate-300 p-3 pb-12 pr-14 text-[15px] outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200" />
+            <button type="button" onClick={toggleSpeech} disabled={!speechSupported} aria-label={listening ? t.stopListening : t.startListening} title={listening ? t.stopListening : t.startListening} className={`absolute bottom-3 right-3 grid h-10 w-10 place-items-center rounded-full shadow-sm ring-1 transition ${listening ? "animate-pulse bg-red-500 text-white ring-red-300" : "bg-emerald-600 text-white ring-emerald-500 hover:bg-emerald-700"} disabled:cursor-not-allowed disabled:bg-slate-300 disabled:ring-slate-300`}>
+              {listening ? <span className="h-3.5 w-3.5 rounded-sm bg-current" /> : <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="2" width="6" height="12" rx="3" /><path d="M5 10a7 7 0 0 0 14 0M12 17v5M8 22h8" /></svg>}
+            </button>
+          </div>
+          {listening && <p role="status" className="mt-1.5 text-xs font-medium text-red-600">● {t.listening} ({lang === "hi" ? "हिंदी" : "English"})</p>}
+          {!speechSupported && <p className="mt-1.5 text-xs text-slate-500">{t.micUnsupported}</p>}
+          {speechError && <p role="alert" className="mt-1.5 text-xs text-red-600">{speechError}</p>}
           <div className="mt-2 flex flex-wrap items-center gap-2">
             <button onClick={handleParse} disabled={parsing || !freeText.trim()} className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-50">{parsing ? t.reading : `✨ ${t.understand}`}</button>
-            {parseSource && <span className="text-xs text-slate-500">{parseSource === "gemini" ? "Understood by AI ✓" : "Read locally ✓"}</span>}
+            {parseSource && <span role="status" className="text-xs font-medium text-emerald-700">{parseSource === "gemini" ? t.understoodAI : t.understoodLocal}</span>}
           </div>
+          {parseSummary.length > 0 && <div className="mt-3 rounded-xl bg-emerald-50 p-3 ring-1 ring-emerald-100"><p className="text-xs font-semibold text-emerald-900">{t.detected}</p><div className="mt-2 flex flex-wrap gap-1.5">{parseSummary.map((fact) => <span key={fact} className="rounded-full bg-white px-2.5 py-1 text-xs font-medium text-slate-700 ring-1 ring-emerald-200">{fact}</span>)}</div><p className="mt-2 text-xs text-emerald-800">{t.reviewDetected}</p></div>}
+          {parseError && <p role="alert" className="mt-2 rounded-xl bg-red-50 px-3 py-2 text-xs font-medium text-red-700 ring-1 ring-red-100">{parseError}</p>}
           <div className="mt-4">
             <p className="text-xs font-medium text-slate-500">{t.tryPersona}</p>
             <div className="mt-1.5 flex flex-wrap gap-1.5">{PERSONAS.map((p) => <button key={p.id} onClick={() => loadPersona(p.id)} title={p.blurb} className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-200">{p.name}</button>)}</div>
