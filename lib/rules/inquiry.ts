@@ -29,8 +29,8 @@ const hh = (p: Profile, patch: Partial<Profile["household"]>): Profile => ({ ...
 const isStudentScenario = (p: Profile) => p.household.hasSchoolGoingChild || (p.age != null && p.age >= 6 && p.age <= 25);
 const isScholarshipScenario = (p: Profile) => isStudentScenario(p) || p.documentsHave.includes("caste") || p.documentsHave.includes("income");
 const mayNeedDisabilityQ = (p: Profile) => (p.age != null && p.age >= 60) || p.household.isWidow || p.household.isPregnantOrLactating || p.household.hasElderly60Plus;
-const pregnancyIsRelevant = (p: Profile) => p.gender !== "male" && (p.age == null || (p.age >= 14 && p.age <= 50)) && !isStudentScenario(p);
-const widowIsRelevant = (p: Profile) => p.gender !== "male" && (p.age == null || p.age >= 18) && !isStudentScenario(p);
+const pregnancyIsRelevant = (p: Profile) => p.gender === "female" && (p.age == null || (p.age >= 14 && p.age <= 50)) && !isStudentScenario(p);
+const widowIsRelevant = (p: Profile) => p.gender === "female" && (p.age == null || p.age >= 18) && !isStudentScenario(p);
 
 const CANDIDATES: CandidateDef[] = [
   {
@@ -57,8 +57,19 @@ const CANDIDATES: CandidateDef[] = [
     ],
   },
   {
-    id: "work",
+    id: "gender",
     order: 3,
+    question: L("What is your gender?", "आपका लिंग क्या है?"),
+    relevant: (p) => p.gender === undefined,
+    options: [
+      { label: L("Female", "महिला"), apply: (p) => ({ ...p, gender: "female" }) },
+      { label: L("Male", "पुरुष"), apply: (p) => ({ ...p, gender: "male" }) },
+      { label: L("Other", "अन्य"), apply: (p) => ({ ...p, gender: "other" }) },
+    ],
+  },
+  {
+    id: "work",
+    order: 4,
     question: L("What does your family mainly do for a living?", "आपका परिवार जीविका के लिए मुख्यतः क्या करता है?"),
     relevant: (p) => p.occupation === undefined,
     options: [
@@ -69,7 +80,7 @@ const CANDIDATES: CandidateDef[] = [
   },
   {
     id: "house",
-    order: 4,
+    order: 5,
     question: L("What kind of house do you live in?", "आप किस तरह के घर में रहते हैं?"),
     relevant: () => true,
     options: [
@@ -79,7 +90,7 @@ const CANDIDATES: CandidateDef[] = [
   },
   {
     id: "lpg",
-    order: 5,
+    order: 6,
     question: L("Do you have a cooking-gas (LPG) connection?", "क्या आपके पास रसोई गैस (LPG) कनेक्शन है?"),
     relevant: () => true,
     options: [
@@ -89,7 +100,7 @@ const CANDIDATES: CandidateDef[] = [
   },
   {
     id: "child",
-    order: 6,
+    order: 7,
     question: L("Is there a child studying (school or college) in your family?", "क्या आपके परिवार में कोई बच्चा पढ़ रहा है (स्कूल/कॉलेज)?"),
     relevant: (p) => isScholarshipScenario(p) && p.household.hasSchoolGoingChild === false && p.age == null,
     options: [
@@ -99,7 +110,7 @@ const CANDIDATES: CandidateDef[] = [
   },
   {
     id: "income_bucket",
-    order: 7,
+    order: 8,
     question: L("About how much is the family's annual income?", "परिवार की सालाना आमदनी लगभग कितनी है?"),
     relevant: (p) => isScholarshipScenario(p) && p.annualHouseholdIncome == null,
     options: [
@@ -110,7 +121,7 @@ const CANDIDATES: CandidateDef[] = [
   },
   {
     id: "income_doc",
-    order: 8,
+    order: 9,
     question: L("Do you already have an income certificate for the student?", "क्या आपके छात्र/बच्चे के लिए आय प्रमाण-पत्र पहले से है?"),
     relevant: (p) => isScholarshipScenario(p) && !p.documentsHave.includes("income"),
     options: [
@@ -120,7 +131,7 @@ const CANDIDATES: CandidateDef[] = [
   },
   {
     id: "widow",
-    order: 9,
+    order: 10,
     question: L("Are you a widow?", "क्या आप विधवा हैं?"),
     relevant: widowIsRelevant,
     options: [
@@ -130,7 +141,7 @@ const CANDIDATES: CandidateDef[] = [
   },
   {
     id: "pregnant",
-    order: 10,
+    order: 11,
     question: L("Are you pregnant or a new mother?", "क्या आप गर्भवती हैं या नई माँ हैं?"),
     relevant: pregnancyIsRelevant,
     options: [
@@ -140,7 +151,7 @@ const CANDIDATES: CandidateDef[] = [
   },
   {
     id: "disability",
-    order: 11,
+    order: 12,
     question: L("Does anyone in the family have a disability?", "क्या परिवार में किसी को दिव्यांगता है?"),
     relevant: (p) => p.disability === "none" && mayNeedDisabilityQ(p),
     options: [
