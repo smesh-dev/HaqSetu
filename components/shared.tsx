@@ -53,10 +53,10 @@ export function Nav({ lang, onLang }: { lang: Lang; onLang: (l: Lang) => void })
       <div className="mx-auto max-w-5xl px-4 py-4 flex items-center justify-between gap-4">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3 group transition click-scale shrink-0">
-          <div className="grid h-10 w-10 place-items-center rounded-full bg-brand-green text-white text-sm font-black shadow-sm ring-1 ring-brand-green/10">
+          <div className="grid h-10 w-10 place-items-center rounded-full bg-brand-green text-white text-sm font-bold shadow-sm ring-1 ring-brand-green/10">
             हक़
           </div>
-          <span className="text-xl font-black text-brand-green tracking-tight group-hover:text-brand-green-hover transition">
+          <span className="text-xl font-bold text-brand-green tracking-tight group-hover:text-brand-green-hover transition">
             HaqSetu
           </span>
         </Link>
@@ -71,7 +71,7 @@ export function Nav({ lang, onLang }: { lang: Lang; onLang: (l: Lang) => void })
                 href={href}
                 className={`whitespace-nowrap px-4 py-2 text-[14.5px] font-bold transition-all relative rounded-lg click-scale ${
                   active
-                    ? "text-brand-green bg-mint-bg/40 font-extrabold"
+                    ? "text-brand-green bg-mint-bg/40 font-bold"
                     : "text-slate-600 hover:text-brand-green hover:bg-slate-50"
                 }`}
               >
@@ -90,7 +90,7 @@ export function Nav({ lang, onLang }: { lang: Lang; onLang: (l: Lang) => void })
             <button
               key={l}
               onClick={() => onLang(l)}
-              className={`rounded-lg px-3.5 py-1.5 transition click-scale font-black ${
+              className={`rounded-lg px-3.5 py-1.5 transition click-scale font-bold ${
                 lang === l
                   ? "bg-white text-brand-green shadow-3xs"
                   : "text-slate-500 hover:text-slate-800"
@@ -171,12 +171,12 @@ export function Hero({ a, lang }: { a: Assessment; lang: Lang }) {
   return (
     <section className="rounded-3xl bg-brand-green p-6 text-white shadow-md relative overflow-hidden animate-page-enter">
       <div className="absolute right-0 bottom-0 opacity-10 pointer-events-none transform translate-x-4 translate-y-4">
-        <span className="text-[120px] font-black leading-none">हक़</span>
+        <span className="text-[120px] font-bold leading-none">हक़</span>
       </div>
 
       <p className="text-xs font-bold uppercase tracking-wider text-emerald-200">{t.resultsFor}</p>
       <p className="mt-1 text-sm text-emerald-100/90">{t.entitledTo}</p>
-      <h2 className="text-4xl font-extrabold leading-tight mt-1">
+      <h2 className="text-4xl font-bold leading-tight mt-1">
         {a.matches.length} {t.benefitsWord}
       </h2>
       {(valueLine || a.hasOneTimeBenefits) && (
@@ -188,11 +188,11 @@ export function Hero({ a, lang }: { a: Assessment; lang: Lang }) {
       )}
       <div className="mt-4 grid grid-cols-2 gap-3">
         <div className="rounded-2xl bg-white/10 px-4 py-3 border border-white/10 shadow-inner">
-          <p className="text-2xl font-black">{c.claimableNowCount}</p>
+          <p className="text-2xl font-bold">{c.claimableNowCount}</p>
           <p className="text-[11px] font-semibold text-emerald-100">{t.claimNow}</p>
         </div>
         <div className="rounded-2xl bg-white/10 px-4 py-3 border border-white/10 shadow-inner">
-          <p className="text-2xl font-black">{c.blockedCount}</p>
+          <p className="text-2xl font-bold">{c.blockedCount}</p>
           <p className="text-[11px] font-semibold text-emerald-100">{t.blockedBy}</p>
         </div>
       </div>
@@ -216,7 +216,7 @@ export function ReadinessCard({ r, lang }: { r: Readiness; lang: Lang }) {
           <p className="mt-1 text-[13px] text-slate-500 leading-relaxed">{t.readyBody}</p>
         </div>
         <div className="shrink-0 text-center bg-slate-50 px-3.5 py-2.5 rounded-2xl border border-slate-100 shadow-2xs">
-          <p className={`text-3xl font-black ${scoreColor}`}>{r.score}</p>
+          <p className={`text-3xl font-bold ${scoreColor}`}>{r.score}</p>
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t.readyScore}</p>
         </div>
       </div>
@@ -234,7 +234,7 @@ export function ReadinessCard({ r, lang }: { r: Readiness; lang: Lang }) {
                   <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase border ${m.badge}`}>
                     {m.label}
                   </span>
-                  <p className="text-[14px] font-extrabold text-slate-900">{tx(i.title, lang)}</p>
+                  <p className="text-[14px] font-bold text-slate-900">{tx(i.title, lang)}</p>
                 </div>
                 <p className="mt-1.5 text-[13.5px] text-slate-600 leading-relaxed">{tx(i.detail, lang)}</p>
                 <p className="mt-2 text-[13px] font-bold text-slate-800">
@@ -269,7 +269,7 @@ export function UnlockPath({ a, lang }: { a: Assessment; lang: Lang }) {
           <li key={s.docId} className="trace-step">
             <div className="flex items-center gap-2.5">
               <span className="text-xl leading-none">{s.icon}</span>
-              <span className="text-[14.5px] font-extrabold text-slate-850">{lang === "hi" ? s.hindiName : s.name}</span>
+              <span className="text-[14.5px] font-bold text-slate-850">{lang === "hi" ? s.hindiName : s.name}</span>
               {s.newlyUnlocksCount > 0 && (
                 <span className="rounded-full bg-mint-bg px-2.5 py-0.5 text-[11px] font-bold text-brand-green border border-mint-border/50">
                   +{s.newlyUnlocksCount} {t.opens}
@@ -308,7 +308,7 @@ export function TrapCard({ a, lang }: { a: Assessment; lang: Lang }) {
       <div className="mt-3.5 flex items-center gap-3.5 rounded-2xl bg-white p-4 border border-amber-200/60 shadow-2xs hover-lift transition">
         <span className="text-3xl shrink-0">{g.icon}</span>
         <div className="min-w-0 flex-1">
-          <p className="font-extrabold text-slate-900 text-[14.5px]">{lang === "hi" ? g.hindiName : g.name}</p>
+          <p className="font-bold text-slate-900 text-[14.5px]">{lang === "hi" ? g.hindiName : g.name}</p>
           <p className="text-[13px] text-slate-550 leading-relaxed mt-0.5">{tx(g.what, lang)}</p>
           <div className="mt-2.5 flex flex-wrap gap-1.5">
             {g.unlocksSchemes.map((s, i) => (

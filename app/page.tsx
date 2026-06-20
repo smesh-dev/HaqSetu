@@ -33,7 +33,7 @@ export default function Home() {
             <span>🔒</span>
             <span>{t.privacyChip}</span>
           </div>
-          <h1 className="text-4xl sm:text-5xl font-black leading-tight text-slate-900 tracking-tight max-w-2xl mx-auto">
+          <h1 className="text-4xl sm:text-5xl font-extrabold leading-tight text-slate-900 tracking-tight max-w-2xl mx-auto">
             {t.homeHeadline}
           </h1>
           <p className="text-[15.5px] leading-relaxed text-slate-600 max-w-2xl mx-auto">
@@ -59,7 +59,7 @@ export default function Home() {
               className="rounded-3xl bg-white p-5 border border-slate-200/80 shadow-2xs hover-lift transition-all click-scale"
             >
               <div className="text-3xl">{icon}</div>
-              <p className="mt-3.5 text-[15.5px] font-extrabold text-slate-850">{tag}</p>
+              <p className="mt-3.5 text-[15.5px] font-bold text-slate-850">{tag}</p>
               <p className="mt-1 text-[13px] font-bold text-brand-green flex items-center gap-1">
                 <span>{title}</span>
                 <span>→</span>
@@ -70,15 +70,15 @@ export default function Home() {
 
         {/* How it works */}
         <section className="rounded-3xl bg-white p-6 border border-slate-200/80 shadow-2xs hover-lift transition-all">
-          <h2 className="text-[15px] font-extrabold text-slate-850 uppercase tracking-wider">{t.homeHow}</h2>
+          <h2 className="text-[15px] font-bold text-slate-850 uppercase tracking-wider">{t.homeHow}</h2>
           <ol className="mt-4.5 space-y-4">
             {steps.map((s, idx) => (
               <li key={s.t} className="flex items-start gap-4">
-                <span className="grid h-8.5 w-8.5 shrink-0 place-items-center rounded-full bg-mint-bg text-sm font-black text-brand-green border border-mint-border/50">
+                <span className="grid h-8.5 w-8.5 shrink-0 place-items-center rounded-full bg-mint-bg text-sm font-bold text-brand-green border border-mint-border/50">
                   {idx + 1}
                 </span>
                 <div>
-                  <p className="text-[15px] font-extrabold text-slate-850">
+                  <p className="text-[15px] font-bold text-slate-850">
                     {s.t.replace(/^\d\s*·\s*/, "")}
                   </p>
                   <p className="text-[13.5px] leading-relaxed text-slate-600 mt-0.5">{s.b}</p>
@@ -95,7 +95,7 @@ export default function Home() {
               ⚙️
             </span>
             <div>
-              <h2 className="text-[15px] font-extrabold text-slate-850 uppercase tracking-wider">{t.engineTitle}</h2>
+              <h2 className="text-[15px] font-bold text-slate-850 uppercase tracking-wider">{t.engineTitle}</h2>
               <p className="mt-1.5 text-[13.5px] leading-relaxed text-slate-600">{t.engineBody}</p>
               <div className="mt-3.5 flex flex-wrap gap-2">
                 {[t.pillEngine, t.pillCited, t.pillOffline].map((p) => (

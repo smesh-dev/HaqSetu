@@ -66,7 +66,7 @@ export default function TrackerPage() {
           <span className="text-[11px] font-bold text-brand-green uppercase tracking-widest">
             {t.trackerTitle}
           </span>
-          <h1 className="text-2xl font-black text-slate-855 mt-1">
+          <h1 className="text-2xl font-bold text-slate-800 mt-1">
             {t.trackerLead.replace(/\s*-\s*.*$/, "")}
           </h1>
           <p className="text-[13.5px] text-slate-500 mt-1">
@@ -124,7 +124,7 @@ export default function TrackerPage() {
                     </span>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between gap-3">
-                        <h3 className="text-[15.5px] font-bold text-slate-855">
+                        <h3 className="text-[15.5px] font-bold text-slate-800">
                           {lang === "hi" ? s.hindiName : s.name}
                         </h3>
                         <button
@@ -145,7 +145,7 @@ export default function TrackerPage() {
                                   ? "bg-rose-600 text-white border-rose-600"
                                   : st === "received"
                                   ? "bg-brand-green text-white border-brand-green"
-                                  : "bg-slate-855 text-white border-slate-855"
+                                  : "bg-slate-800 text-white border-slate-800"
                                 : "bg-white text-slate-550 border-slate-200 hover:bg-slate-50"
                             }`}
                           >

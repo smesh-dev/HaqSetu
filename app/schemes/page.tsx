@@ -231,7 +231,7 @@ export default function SchemesPage() {
           <span className="text-[11px] font-bold text-brand-green uppercase tracking-widest">
             {t.navSchemes}
           </span>
-          <h1 className="text-2xl font-black text-slate-850 mt-1">
+          <h1 className="text-2xl font-bold text-slate-800 mt-1">
             {t.describe.replace(/\s*—\s*.*$/, "")}
           </h1>
         </div>
@@ -352,13 +352,13 @@ export default function SchemesPage() {
             <span className="grid h-8.5 w-8.5 place-items-center rounded-xl bg-mint-bg text-base border border-mint-border/50">
               🤖
             </span>
-            <h2 className="text-[15px] font-extrabold text-slate-800 uppercase tracking-wider">
+            <h2 className="text-[15px] font-bold text-slate-800 uppercase tracking-wider">
               {t.guidedTitle}
             </h2>
           </div>
           {guided ? (
             <div className="mt-4">
-              <p className="text-[16px] font-black text-slate-850">{guided.question[lang]}</p>
+              <p className="text-[16px] font-bold text-slate-800">{guided.question[lang]}</p>
               <div className="mt-3.5 flex flex-col gap-2">
                 {guided.options.map((o, i) => (
                   <button
@@ -399,14 +399,14 @@ export default function SchemesPage() {
 
         {/* manual form (optional / advanced) */}
         <details className="group no-print">
-          <summary className="cursor-pointer list-none rounded-2xl bg-white px-5 py-4 text-[14px] font-extrabold text-slate-700 shadow-2xs border border-slate-250/80 marker:hidden flex items-center justify-between hover-lift transition">
+          <summary className="cursor-pointer list-none rounded-2xl bg-white px-5 py-4 text-[14px] font-bold text-slate-700 shadow-2xs border border-slate-250/80 marker:hidden flex items-center justify-between hover-lift transition">
             <span>{t.orForm}</span>
             <span className="inline-block transition-transform duration-250 group-open:rotate-90">▸</span>
           </summary>
           <div className="mt-4 space-y-6">
             {/* who */}
             <section className="rounded-3xl bg-white p-5 border border-slate-200/80 shadow-2xs hover-lift transition">
-              <h2 className="text-[15px] font-extrabold text-slate-850 uppercase tracking-wider">{t.whoTitle}</h2>
+              <h2 className="text-[15px] font-bold text-slate-850 uppercase tracking-wider">{t.whoTitle}</h2>
               <p className="mt-3.5 text-[12.5px] font-bold text-slate-500 uppercase tracking-wider">
                 {t.category}
               </p>
@@ -508,7 +508,7 @@ export default function SchemesPage() {
 
             {/* situation */}
             <section className="rounded-3xl bg-white p-5 border border-slate-200/80 shadow-2xs hover-lift transition">
-              <h2 className="text-[15px] font-extrabold text-slate-850 uppercase tracking-wider">{t.situationTitle}</h2>
+              <h2 className="text-[15px] font-bold text-slate-850 uppercase tracking-wider">{t.situationTitle}</h2>
               <div className="mt-4.5 grid grid-cols-2 gap-2.5 sm:grid-cols-3">
                 {SITUATIONS.map((s) => (
                   <BigChip

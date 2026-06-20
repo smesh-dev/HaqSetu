@@ -47,7 +47,7 @@ export default function DocumentsPage() {
           <span className="text-[11px] font-bold text-brand-green uppercase tracking-widest">
             {t.docsTitle}
           </span>
-          <h1 className="text-2xl font-black text-slate-850 mt-1">
+          <h1 className="text-2xl font-bold text-slate-850 mt-1">
             {t.docsLead.replace(/\s*—\s*.*$/, "")}
           </h1>
           <p className="text-[13.5px] text-slate-500 mt-1 leading-relaxed">
@@ -59,7 +59,7 @@ export default function DocumentsPage() {
         <section className="rounded-3xl bg-white p-5 border border-slate-200/80 shadow-2xs hover-lift transition-all">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
-              <h2 className="text-[15px] font-extrabold text-slate-850 uppercase tracking-wider">{t.uploadTitle}</h2>
+              <h2 className="text-[15px] font-bold text-slate-850 uppercase tracking-wider">{t.uploadTitle}</h2>
               <p className="mt-1 text-[13px] text-slate-500 leading-relaxed">{t.uploadHint}</p>
             </div>
             <label
@@ -94,7 +94,7 @@ export default function DocumentsPage() {
 
         {/* vault checklist card */}
         <section className="rounded-3xl bg-white p-5 border border-slate-200/80 shadow-2xs hover-lift transition-all">
-          <h2 className="text-[15px] font-extrabold text-slate-850 uppercase tracking-wider mb-3.5">
+          <h2 className="text-[15px] font-bold text-slate-850 uppercase tracking-wider mb-3.5">
             {t.haveQ}
           </h2>
           <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
