@@ -50,26 +50,26 @@ export function Nav({ lang, onLang }: { lang: Lang; onLang: (l: Lang) => void })
 
   return (
     <header className="no-print sticky top-0 z-20 bg-white border-b border-slate-200/80 shadow-2xs">
-      <div className="mx-auto max-w-3xl px-4 py-3.5 flex items-center justify-between gap-4">
+      <div className="mx-auto max-w-5xl px-4 py-4 flex items-center justify-between gap-4">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2.5 group transition click-scale shrink-0">
-          <div className="grid h-8.5 w-8.5 place-items-center rounded-full bg-brand-green text-white text-xs font-black shadow-sm ring-1 ring-brand-green/10">
+        <Link href="/" className="flex items-center gap-3 group transition click-scale shrink-0">
+          <div className="grid h-10 w-10 place-items-center rounded-full bg-brand-green text-white text-sm font-black shadow-sm ring-1 ring-brand-green/10">
             हक़
           </div>
-          <span className="text-lg font-black text-brand-green tracking-tight group-hover:text-brand-green-hover transition">
+          <span className="text-xl font-black text-brand-green tracking-tight group-hover:text-brand-green-hover transition">
             HaqSetu
           </span>
         </Link>
 
         {/* Navigation Tabs */}
-        <nav className="flex items-center gap-1 overflow-x-auto scrollbar-none py-0.5">
+        <nav className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-0.5">
           {tabs.map(([href, label]) => {
             const active = href === "/" ? path === "/" : path.startsWith(href);
             return (
               <Link
                 key={href}
                 href={href}
-                className={`whitespace-nowrap px-3 py-1.5 text-[13px] font-bold transition-all relative rounded-lg click-scale ${
+                className={`whitespace-nowrap px-4 py-2 text-[14.5px] font-bold transition-all relative rounded-lg click-scale ${
                   active
                     ? "text-brand-green bg-mint-bg/40 font-extrabold"
                     : "text-slate-600 hover:text-brand-green hover:bg-slate-50"
@@ -77,7 +77,7 @@ export function Nav({ lang, onLang }: { lang: Lang; onLang: (l: Lang) => void })
               >
                 {label}
                 {active && (
-                  <span className="absolute bottom-0 left-2.5 right-2.5 h-[2px] bg-brand-green rounded-full" />
+                  <span className="absolute bottom-0 left-3 right-3 h-[2.5px] bg-brand-green rounded-full" />
                 )}
               </Link>
             );
@@ -85,12 +85,12 @@ export function Nav({ lang, onLang }: { lang: Lang; onLang: (l: Lang) => void })
         </nav>
 
         {/* Lang Toggle */}
-        <div className="flex items-center border border-slate-200 rounded-xl p-0.5 text-[11px] font-bold bg-slate-50 shadow-3xs shrink-0">
+        <div className="flex items-center border border-slate-200 rounded-xl p-0.5 text-[12.5px] font-bold bg-slate-50 shadow-3xs shrink-0">
           {(["en", "hi"] as const).map((l) => (
             <button
               key={l}
               onClick={() => onLang(l)}
-              className={`rounded-lg px-2.5 py-1 transition click-scale font-black ${
+              className={`rounded-lg px-3.5 py-1.5 transition click-scale font-black ${
                 lang === l
                   ? "bg-white text-brand-green shadow-3xs"
                   : "text-slate-500 hover:text-slate-800"
