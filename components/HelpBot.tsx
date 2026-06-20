@@ -366,7 +366,7 @@ export default function HelpBot() {
             setIsOpen(true);
             speakText(GREETINGS[botLang], botLang);
           }}
-          className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-gradient-to-br from-emerald-600 to-teal-500 shadow-xl flex items-center justify-center text-white cursor-pointer hover:scale-105 active:scale-95 transition-all duration-200 z-50 group border border-white/20"
+          className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-brand-green hover:bg-brand-green-hover shadow-xl flex items-center justify-center text-white cursor-pointer hover:scale-105 active:scale-95 transition-all duration-200 z-50 group border border-white/20"
           title={botLang === "hi" ? "मदद चाहिए?" : "Need Help?"}
           aria-label="Open helper bot"
         >
@@ -379,16 +379,16 @@ export default function HelpBot() {
 
       {/* Chat Window */}
       {isOpen && (
-        <div className="fixed bottom-6 right-6 w-96 max-w-[calc(100vw-2rem)] h-[520px] max-h-[80vh] bg-white rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-slate-200 z-50 transition-all duration-300">
+        <div className="fixed bottom-6 right-6 w-96 max-w-[calc(100vw-2rem)] h-[520px] max-h-[80vh] bg-white rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-slate-200/80 z-50 transition-all duration-300">
           {/* Header */}
-          <div className="bg-gradient-to-br from-emerald-700 to-teal-600 text-white px-4 py-3 flex items-center justify-between shadow-md">
+          <div className="bg-brand-green text-white px-4 py-3.5 flex items-center justify-between shadow-md">
             <div className="flex items-center gap-2">
               <span className="text-2xl">🤖</span>
               <div>
                 <h3 className="text-sm font-bold leading-tight">
                   {botLang === "hi" ? "हक़सेतु सहायक" : "HaqSetu Assistant"}
                 </h3>
-                <p className="text-[10px] text-emerald-100">
+                <p className="text-[10px] text-emerald-100/90 font-medium">
                   {botLang === "hi" ? "सदा सहायता के लिए उपलब्ध" : "Always here to help you"}
                 </p>
               </div>
@@ -399,7 +399,7 @@ export default function HelpBot() {
                 <button
                   onClick={() => handleLanguageToggle("en")}
                   className={`rounded px-1.5 py-0.5 transition ${
-                    botLang === "en" ? "bg-white text-emerald-800" : "text-white/80 hover:text-white"
+                    botLang === "en" ? "bg-white text-brand-green" : "text-white/80 hover:text-white"
                   }`}
                 >
                   EN
@@ -407,7 +407,7 @@ export default function HelpBot() {
                 <button
                   onClick={() => handleLanguageToggle("hi")}
                   className={`rounded px-1.5 py-0.5 transition ${
-                    botLang === "hi" ? "bg-white text-emerald-800" : "text-white/80 hover:text-white"
+                    botLang === "hi" ? "bg-white text-brand-green" : "text-white/80 hover:text-white"
                   }`}
                 >
                   हिं
@@ -471,8 +471,8 @@ export default function HelpBot() {
                 }`}
               >
                 <div
-                  className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-sm shadow-sm ${
-                    m.role === "user" ? "bg-emerald-100" : "bg-white"
+                  className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-sm shadow-sm border border-slate-100 ${
+                    m.role === "user" ? "bg-mint-bg" : "bg-white"
                   }`}
                 >
                   {m.role === "user" ? "👤" : "🤖"}
@@ -481,8 +481,8 @@ export default function HelpBot() {
                   <div
                     className={`rounded-2xl px-3.5 py-2 text-[13.5px] leading-relaxed shadow-sm border ${
                       m.role === "user"
-                        ? "bg-emerald-600 text-white border-emerald-600 rounded-tr-none"
-                        : "bg-white text-slate-800 border-slate-100 rounded-tl-none pr-8"
+                        ? "bg-brand-green text-white border-brand-green rounded-tr-none"
+                        : "bg-white text-slate-850 border-slate-200/60 rounded-tl-none pr-8"
                     }`}
                   >
                     {m.content}
@@ -491,7 +491,7 @@ export default function HelpBot() {
                     {m.role === "model" && (
                       <button
                         onClick={() => speakText(m.content, botLang, true)}
-                        className="absolute right-2 top-2 text-slate-400 hover:text-emerald-700 bg-white/80 hover:bg-slate-100 rounded p-0.5 shadow-xs transition"
+                        className="absolute right-2 top-2 text-slate-400 hover:text-brand-green bg-white/80 hover:bg-slate-100 rounded p-0.5 shadow-xs transition"
                         title={botLang === "hi" ? "सुने" : "Listen"}
                       >
                         <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-none stroke-current" strokeWidth="2.5">
@@ -515,7 +515,7 @@ export default function HelpBot() {
                     <button
                       key={idx}
                       onClick={() => handleSend(s.text)}
-                      className="text-left text-xs bg-white text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 px-3 py-1.5 rounded-xl border border-slate-200 shadow-xs transition"
+                      className="text-left text-xs bg-white text-slate-750 hover:bg-mint-bg/30 hover:text-brand-green px-3 py-1.5 rounded-xl border border-slate-200/80 shadow-3xs transition hover-lift click-scale"
                     >
                       {s.label}
                     </button>
@@ -531,9 +531,9 @@ export default function HelpBot() {
                   🤖
                 </div>
                 <div className="bg-white text-slate-500 border border-slate-100 rounded-2xl rounded-tl-none px-4 py-2.5 text-xs shadow-sm flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 bg-emerald-600 rounded-full animate-bounce delay-100" />
-                  <span className="w-1.5 h-1.5 bg-emerald-600 rounded-full animate-bounce delay-200" />
-                  <span className="w-1.5 h-1.5 bg-emerald-600 rounded-full animate-bounce delay-300" />
+                  <span className="w-1.5 h-1.5 bg-brand-green rounded-full animate-bounce delay-100" />
+                  <span className="w-1.5 h-1.5 bg-brand-green rounded-full animate-bounce delay-200" />
+                  <span className="w-1.5 h-1.5 bg-brand-green rounded-full animate-bounce delay-300" />
                 </div>
               </div>
             )}
@@ -570,7 +570,7 @@ export default function HelpBot() {
                   ? "यहाँ प्रश्न लिखें या माइक दबाकर बोलें..."
                   : "Type your question or click the mic to speak..."
               }
-              className="flex-1 bg-slate-50 border border-slate-200 rounded-2xl px-3 py-2 text-xs outline-none focus:bg-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-200 transition"
+              className="flex-1 bg-slate-50 border border-slate-200 rounded-2xl px-3 py-2 text-xs outline-none focus:bg-white focus:border-brand-green focus:ring-1 focus:ring-mint-bg transition"
               disabled={loading}
             />
 
@@ -609,7 +609,7 @@ export default function HelpBot() {
             <button
               type="submit"
               disabled={loading || !inputVal.trim()}
-              className="w-9 h-9 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0 hover:bg-emerald-700 active:scale-95 disabled:opacity-40 disabled:pointer-events-none transition shadow-sm"
+              className="w-9 h-9 rounded-full bg-brand-green text-white flex items-center justify-center shrink-0 hover:bg-brand-green-hover active:scale-95 disabled:opacity-40 disabled:pointer-events-none transition shadow-sm"
               title={botLang === "hi" ? "भेजें" : "Send"}
             >
               <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current rotate-45 transform -translate-x-0.5">
