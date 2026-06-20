@@ -209,3 +209,83 @@ export async function explainAssessment(
   if (llm) return { text: llm.trim(), source: "gemini" };
   return { text: "", source: "fallback" };
 }
+
+const CHAT_SYSTEM = `You are "HaqSetu Sahayak" (हक़सेतु सहायक), a warm, empathetic, and friendly AI assistant for HaqSetu.
+Your target users are low-income, low-literacy, or rural Indian families who need help finding government benefits, checking documents, and tracking applications.
+
+HaqSetu features:
+1. "Find benefits" (लाभ ढूँढें) under /schemes:
+   - Users describe their situation in their own words in the "Situation Box" (स्थिति बॉक्स), or use the quick buttons (widow, disabled, rural, BPL, etc.).
+   - Guide them to write key details in the situation box, such as: age, gender, state (Rajasthan or Bihar), annual income, occupation (e.g. daily wage worker, farmer), widow status, pregnant status, children in school, or documents they have.
+   - A private rules engine runs on their device to check eligibility. AI only reads text and explains the result; it never decides eligibility.
+2. "My documents" (मेरे दस्तावेज़) under /documents:
+   - A private vault to add the documents they have.
+   - The rejection audit catches errors (name mismatch, Aadhaar-bank seeding issues, dormant accounts, expired income certificates) that get applications rejected even after approval.
+3. "Tracker" (ट्रैकर) under /tracker:
+   - Tracks applications from "To start" -> "Applied" -> "Under verification" -> "Approved" -> "Money received".
+
+Instructions:
+- Keep your answers short and clear (2-4 sentences max).
+- Encourage users to use the microphone button to speak their situation or questions.
+- Remind them that their data is completely private, stored only in their browser (localStorage), and never uploaded.
+- If the user asks a question not related to HaqSetu, gently guide them back to how HaqSetu can help them with welfare benefits.
+- Provide step-by-step guidance on how to get started.`;
+
+export async function chatWithAssistant(
+  messages: { role: "user" | "model"; content: string }[],
+  profileSummary?: string,
+  language: "en" | "hi" = "hi"
+): Promise<{ text: string; source: "gemini" | "fallback" }> {
+  // Build a conversation prompt for geminiCall
+  let prompt = CHAT_SYSTEM;
+  if (language === "hi") {
+    prompt += `\n\nLANGUAGE REQUIREMENT: You must speak in warm, simple, conversational Hindi (written in Devanagari script). Even if the user asks in English, reply in Hindi. Keep your language simple and easy to understand (avoid heavy Sanskritized or Urdu-heavy words; use common terms people use in daily life, like "दस्तावेज़/कागज़", "सरकारी योजना", "अस्वीकार", "मदद"). Keep sentences short.`;
+  } else {
+    prompt += `\n\nLANGUAGE REQUIREMENT: You must speak in warm, simple, conversational English. Even if the user asks in Hindi, reply in English. Keep your language simple and easy to understand for someone who left school early. Keep sentences short and clear.`;
+  }
+
+  if (profileSummary) {
+    prompt += `\n\nCURRENT USER PROFILE FACTS (from rules engine): ${profileSummary}`;
+  }
+  prompt += `\n\nCONVERSATION HISTORY:`;
+  for (const m of messages) {
+    prompt += `\n${m.role === "user" ? "User" : "Assistant"}: ${m.content}`;
+  }
+  prompt += `\nAssistant:`;
+
+  const llm = await geminiCall(prompt, {
+    temperature: 0.4,
+  });
+  
+  if (llm) return { text: llm.trim(), source: "gemini" };
+  
+  // Fallback if Gemini fails or is not configured
+  const lastMsg = messages[messages.length - 1]?.content.toLowerCase() || "";
+  let text = "";
+  const isHi = language === "hi";
+
+  if (/स्थिति|लिख|बॉक्स|story|box|write|describe|situation/i.test(lastMsg)) {
+    text = isHi
+      ? "स्थिति बॉक्स (Situation Box) में आप अपने बारे में सरल शब्दों में लिख सकते हैं। जैसे: 'मैं बिहार के एक गाँव में रहता हूँ, मेरी आयु 45 वर्ष है, मैं खेती करता हूँ और मेरे पास आधार कार्ड है।' आप बोलकर भी लिख सकते हैं!"
+      : "In the Situation Box, you can describe yourself in simple words. For example: 'I live in a village in Bihar, I am 45 years old, I am a farmer, and I only have an Aadhaar card.' You can also speak to write!";
+  } else if (/दस्तावेज़|कागज़|प्रमाण|audit|रिजेक्ट|अस्वीकार|reject|document|caste|income|bank|aadhaar/i.test(lastMsg)) {
+    text = isHi
+      ? "'मेरे दस्तावेज़' (My Documents) पेज पर आप अपने दस्तावेज़ जोड़ सकते हैं। वहाँ नाम बेमेल या आधार-बैंक लिंक न होने जैसी गलतियों की जाँच होती है, जिससे आपका फॉर्म रिजेक्ट होने से बच सके।"
+      : "On the 'My Documents' page, you can add your documents. We will check for errors like name mismatches or missing Aadhaar-bank links to prevent rejection of your forms.";
+  } else if (/ट्रैक|आवेदन|tracker|track|apply/i.test(lastMsg)) {
+    text = isHi
+      ? "'ट्रैकर' (Tracker) पेज पर आप अपने आवेदनों को सहेज सकते हैं और ट्रैक कर सकते हैं कि आवेदन किस चरण में है (जैसे: आवेदन किया, मंज़ूर हुआ, या पैसा मिल गया)।"
+      : "On the 'Tracker' page, you can save and follow your applications step-by-step, from starting to money received.";
+  } else if (/योजना|लाभ|फायदा|scheme|benefit/i.test(lastMsg)) {
+    text = isHi
+      ? "'लाभ ढूँढें' (Find Benefits) पेज पर जाकर आप कुछ आसान सवालों के जवाब देकर या अपनी स्थिति लिखकर जान सकते हैं कि आप किन सरकारी योजनाओं के हकदार हैं।"
+      : "On the 'Find Benefits' page, you can answer a few simple questions or type your situation to find out which government schemes you are eligible for.";
+  } else {
+    text = isHi
+      ? "नमस्ते! मैं हक़सेतु सहायक हूँ। आप मुझसे पूछ सकते हैं कि स्थिति बॉक्स में क्या लिखना है, दस्तावेज़ों की जाँच कैसे करनी है, या ट्रैकर का उपयोग कैसे करना है।"
+      : "Hello! I am HaqSetu Assistant. You can ask me how to use the situation box, check documents, or track your benefits.";
+  }
+  
+  return { text, source: "fallback" };
+}
+

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import HelpBot from "@/components/HelpBot";
 
 export const metadata: Metadata = {
   title: "HaqSetu — The benefits you're owed, found and explained",
@@ -17,6 +18,7 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         {children}
+        <HelpBot />
       </body>
     </html>
   );
