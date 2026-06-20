@@ -73,50 +73,69 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
   const t = T[lang];
 
   useEffect(() => {
-    if (!isFirebaseConfigured) {
-      const mockUser = localStorage.getItem("haqsetu_mock_user");
-      if (mockUser) {
-        setUser({ uid: "demo-user" } as User);
-      }
-      setLoading(false);
-      return;
-    }
-
-    if (!auth) {
+    if (!isFirebaseConfigured || !auth) {
+      setUser(null);
       setLoading(false);
       return;
     }
 
     const unsubscribe = onAuthStateChanged(auth, (nextUser) => {
       setUser(nextUser);
+
+      if (nextUser?.uid) {
+        localStorage.setItem("haqsetu_current_uid", nextUser.uid);
+      } else {
+        localStorage.removeItem("haqsetu_current_uid");
+      }
+
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("haqsetu-auth-change"));
+      }
       setLoading(false);
     });
     return () => unsubscribe();
   }, []);
 
   useEffect(() => {
-    if (!isFirebaseConfigured || !auth) {
-      return;
-    }
-
-    if (!(window as Window & { recaptchaVerifier?: RecaptchaVerifier }).recaptchaVerifier) {
-      const verifier = new RecaptchaVerifier(
-        auth,
-        "recaptcha-container",
-        {
-          size: "invisible",
-          callback: () => {},
-        },
-      );
-      (window as Window & { recaptchaVerifier?: RecaptchaVerifier }).recaptchaVerifier = verifier;
+    if (typeof window !== "undefined") {
+      const resetToken = window.localStorage.getItem("haqsetu_auth_reset");
+      if (resetToken) {
+        setUser(null);
+        setOtpSent(false);
+        setConfirmation(null);
+        setError("");
+        window.localStorage.removeItem("haqsetu_auth_reset");
+      }
     }
   }, []);
+
+ useEffect(() => {
+  if (!isFirebaseConfigured || !auth) {
+    return;
+  }
+
+  // Wait a tick so the recaptcha-container div has mounted in the DOM
+  const timer = setTimeout(() => {
+    const container = document.getElementById("recaptcha-container");
+    if (!container) return;
+
+    if (!(window as Window & { recaptchaVerifier?: RecaptchaVerifier }).recaptchaVerifier) {
+      const verifier = new RecaptchaVerifier(auth, "recaptcha-container", {
+        size: "invisible",
+        callback: () => {},
+      });
+      (window as Window & { recaptchaVerifier?: RecaptchaVerifier }).recaptchaVerifier = verifier;
+    }
+  }, 100);
+
+  return () => clearTimeout(timer);
+}, []);
 
   useEffect(() => {
     if (!profile.name && name) {
       setProfile((p) => ({ ...p, name }));
     }
-  }, [name, profile.name, setProfile]);
+  }, [name, profile.name]);
 
   const isProfileComplete = useMemo(() => {
     return Boolean(
@@ -152,22 +171,21 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
     setSubmitting(true);
     setError("");
     try {
-      if (isFirebaseConfigured && auth) {
-        const recaptcha = (window as Window & { recaptchaVerifier?: RecaptchaVerifier }).recaptchaVerifier;
-        if (!recaptcha) {
-          setError("Phone verification setup is not ready yet.");
+      if (!isFirebaseConfigured || !auth) {
+        setError("Phone verification is not available until Firebase is configured.");
           return;
-        }
-        await recaptcha.render();
-        const result = await signInWithPhoneNumber(auth, normalizedPhone, recaptcha);
-        setConfirmation(result);
-        setOtpSent(true);
-        setPhone(normalizedPhone);
-      } else {
-        setPhone(normalizedPhone);
-        setOtpSent(true);
-        setUser({ uid: "demo-user" } as User);
       }
+
+      const recaptcha = (window as Window & { recaptchaVerifier?: RecaptchaVerifier }).recaptchaVerifier;
+      if (!recaptcha) {
+        setError("Phone verification setup is not ready yet.");
+        return;
+      }
+      await recaptcha.render();
+      const result = await signInWithPhoneNumber(auth, normalizedPhone, recaptcha);
+      setConfirmation(result);
+      setOtpSent(true);
+      setPhone(normalizedPhone);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Something went wrong.";
       setError(message);
@@ -187,8 +205,6 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
     try {
       if (confirmation) {
         await confirmation.confirm(otp);
-      } else if (!isFirebaseConfigured) {
-        setUser({ uid: "demo-user" } as User);
       } else {
         setError("OTP confirmation is not available yet.");
         return;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Profile } from "./rules/types";
 
 // Privacy-first persistence. Everything lives in the browser's localStorage on
@@ -25,19 +25,63 @@ export const initialProfile: Profile = {
   documentsHave: [],
 };
 
+function getScopedStorageKey(baseKey: string) {
+  if (typeof window === "undefined") {
+    return baseKey;
+  }
+
+  const userId = window.localStorage.getItem("haqsetu_current_uid");
+  return userId ? `${baseKey}:${userId}` : baseKey;
+}
+
 function useLocal<T>(key: string, initial: T): [T, (v: T | ((p: T) => T)) => void, boolean] {
   const [val, setVal] = useState<T>(initial);
   const [loaded, setLoaded] = useState(false);
+  const initialRef = useRef(initial);
+  initialRef.current = initial;
+
   useEffect(() => {
-    try {
-      const s = localStorage.getItem(key);
-      if (s) setVal(JSON.parse(s) as T);
-    } catch {
-      /* ignore */
+    let cancelled = false;
+
+    const load = () => {
+      try {
+        const s = localStorage.getItem(key);
+        if (s) {
+          const parsed = JSON.parse(s) as T;
+          if (!cancelled) {
+            setVal(parsed);
+          }
+        } else if (!cancelled) {
+          setVal(initialRef.current);
+        }
+      } catch {
+        if (!cancelled) {
+          setVal(initialRef.current);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoaded(true);
+        }
+      }
+    };
+
+    load();
+
+    const syncStorage = () => load();
+    if (typeof window !== "undefined") {
+      window.addEventListener("storage", syncStorage);
+      window.addEventListener("haqsetu-auth-change", syncStorage);
     }
-    setLoaded(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+
+    return () => {
+      cancelled = true;
+      if (typeof window !== "undefined") {
+        window.removeEventListener("storage", syncStorage);
+        window.removeEventListener("haqsetu-auth-change", syncStorage);
+      }
+    };
+  }, [key]);
+
   useEffect(() => {
     if (!loaded) return;
     try {
@@ -46,11 +90,29 @@ function useLocal<T>(key: string, initial: T): [T, (v: T | ((p: T) => T)) => voi
       /* ignore */
     }
   }, [key, val, loaded]);
+
   return [val, setVal, loaded];
 }
 
 export function useProfile() {
-  return useLocal<Profile>("haqsetu_profile", initialProfile);
+  const [profileKey, setProfileKey] = useState(() => getScopedStorageKey("haqsetu_profile"));
+
+  useEffect(() => {
+    const syncKey = () => setProfileKey(getScopedStorageKey("haqsetu_profile"));
+    syncKey();
+
+    if (typeof window !== "undefined") {
+      window.addEventListener("haqsetu-auth-change", syncKey);
+    }
+
+    return () => {
+      if (typeof window !== "undefined") {
+        window.removeEventListener("haqsetu-auth-change", syncKey);
+      }
+    };
+  }, []);
+
+  return useLocal<Profile>(profileKey, initialProfile);
 }
 
 export type TrackStatus = "to_start" | "applied" | "under_review" | "approved" | "received" | "rejected";
@@ -65,19 +127,64 @@ export interface TrackedApp {
 }
 
 export function useTracked() {
-  return useLocal<TrackedApp[]>("haqsetu_tracked", []);
+  const [trackedKey, setTrackedKey] = useState(() => getScopedStorageKey("haqsetu_tracked"));
+
+  useEffect(() => {
+    const syncKey = () => setTrackedKey(getScopedStorageKey("haqsetu_tracked"));
+    syncKey();
+
+    if (typeof window !== "undefined") {
+      window.addEventListener("haqsetu-auth-change", syncKey);
+    }
+
+    return () => {
+      if (typeof window !== "undefined") {
+        window.removeEventListener("haqsetu-auth-change", syncKey);
+      }
+    };
+  }, []);
+
+  return useLocal<TrackedApp[]>(trackedKey, []);
 }
 
 // Consent for the optional AI explanation (the only thing that ever leaves the device).
 export function useAIConsent() {
-  return useLocal<boolean>("haqsetu_ai_consent", true);
+  const [consentKey, setConsentKey] = useState(() => getScopedStorageKey("haqsetu_ai_consent"));
+
+  useEffect(() => {
+    const syncKey = () => setConsentKey(getScopedStorageKey("haqsetu_ai_consent"));
+    syncKey();
+
+    if (typeof window !== "undefined") {
+      window.addEventListener("haqsetu-auth-change", syncKey);
+    }
+
+    return () => {
+      if (typeof window !== "undefined") {
+        window.removeEventListener("haqsetu-auth-change", syncKey);
+      }
+    };
+  }, []);
+
+  return useLocal<boolean>(consentKey, true);
 }
 
 export function clearAll() {
   try {
+    localStorage.removeItem("haqsetu_current_uid");
     localStorage.removeItem("haqsetu_profile");
     localStorage.removeItem("haqsetu_tracked");
     localStorage.removeItem("haqsetu_ai_consent");
+
+    for (const key of Object.keys(localStorage)) {
+      if (
+        key.startsWith("haqsetu_profile:") ||
+        key.startsWith("haqsetu_tracked:") ||
+        key.startsWith("haqsetu_ai_consent:")
+      ) {
+        localStorage.removeItem(key);
+      }
+    }
   } catch {
     /* ignore */
   }

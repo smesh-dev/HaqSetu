@@ -1,14 +1,12 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { signOut } from "firebase/auth";
 import { Nav } from "@/components/shared";
 import { auth } from "@/lib/firebase";
-import { useProfile } from "@/lib/store";
 import { T } from "@/lib/i18n";
+import { clearAll, initialProfile, useProfile } from "@/lib/store";
 
 export default function ProfilePage() {
-  const router = useRouter();
   const [profile, setProfile] = useProfile();
   const lang = profile.language;
   const t = T[lang];
@@ -18,9 +16,16 @@ export default function ProfilePage() {
       if (auth) {
         await signOut(auth);
       }
-      localStorage.removeItem("haqsetu_mock_user");
     } catch {}
-    router.push("/");
+
+    const nextProfile = { ...initialProfile, language: profile.language };
+    setProfile(nextProfile);
+    clearAll();
+    localStorage.setItem("haqsetu_profile", JSON.stringify(nextProfile));
+    localStorage.removeItem("haqsetu_tracked");
+    localStorage.removeItem("haqsetu_ai_consent");
+    localStorage.setItem("haqsetu_auth_reset", String(Date.now()));
+    window.location.replace("/");
   }
 
   const details = [
