@@ -164,10 +164,8 @@ export default function HelpBot() {
     const handleActivity = () => {
       if (timerRef.current) clearTimeout(timerRef.current);
       timerRef.current = setTimeout(() => {
-        const popped = sessionStorage.getItem("haqsetu_bot_autopopped");
-        if (!popped && !isOpen) {
+        if (!isOpen) {
           setIsOpen(true);
-          sessionStorage.setItem("haqsetu_bot_autopopped", "true");
           // Speak initial greeting upon auto popup
           speakText(GREETINGS[botLang], botLang);
         }
@@ -366,7 +364,6 @@ export default function HelpBot() {
         <button
           onClick={() => {
             setIsOpen(true);
-            sessionStorage.setItem("haqsetu_bot_autopopped", "true");
             speakText(GREETINGS[botLang], botLang);
           }}
           className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-gradient-to-br from-emerald-600 to-teal-500 shadow-xl flex items-center justify-center text-white cursor-pointer hover:scale-105 active:scale-95 transition-all duration-200 z-50 group border border-white/20"
