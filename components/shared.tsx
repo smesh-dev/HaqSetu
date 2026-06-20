@@ -40,7 +40,7 @@ export const SITUATIONS: { key: string; icon: string; en: string; hi: string; on
 export function Nav({ lang, onLang }: { lang: Lang; onLang: (l: Lang) => void }) {
   const t = T[lang];
   const path = usePathname();
-  const tabs: [string, string][] = [["/", t.navHome], ["/schemes", t.navSchemes], ["/documents", t.navDocs], ["/tracker", t.navTracker]];
+  const tabs: [string, string][] = [["/", t.navHome], ["/schemes", t.navSchemes], ["/documents", t.navDocs], ["/tracker", t.navTracker], ["/profile", t.navProfile]];
   return (
     <header className="no-print sticky top-0 z-20 bg-gradient-to-br from-emerald-700 to-teal-600 text-white shadow-sm">
       <div className="mx-auto max-w-3xl px-4 pt-3">

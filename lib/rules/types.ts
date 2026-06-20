@@ -37,7 +37,44 @@ export type Occupation =
 
 export type DisabilityLevel = "none" | "benchmark" | "severe";
 
-export type StateId = "RAJASTHAN" | "BIHAR" | "CENTRAL";
+export type StateId =
+  | "ANDHRA_PRADESH"
+  | "ARUNACHAL_PRADESH"
+  | "ASSAM"
+  | "BIHAR"
+  | "CHHATTISGARH"
+  | "GOA"
+  | "GUJARAT"
+  | "HARYANA"
+  | "HIMACHAL_PRADESH"
+  | "JHARKHAND"
+  | "KARNATAKA"
+  | "KERALA"
+  | "MADHYA_PRADESH"
+  | "MAHARASHTRA"
+  | "MANIPUR"
+  | "MEGHALAYA"
+  | "MIZORAM"
+  | "NAGALAND"
+  | "ODISHA"
+  | "PUNJAB"
+  | "RAJASTHAN"
+  | "SIKKIM"
+  | "TAMIL_NADU"
+  | "TELANGANA"
+  | "TRIPURA"
+  | "UTTAR_PRADESH"
+  | "UTTARAKHAND"
+  | "WEST_BENGAL"
+  | "ANDAMAN_AND_NICOBAR_ISLANDS"
+  | "CHANDIGARH"
+  | "DADRA_AND_NAGAR_HAVELI_AND_DAMAN_AND_DIU"
+  | "DELHI"
+  | "JAMMU_AND_KASHMIR"
+  | "LADAKH"
+  | "LAKSHADWEEP"
+  | "PUDUCHERRY"
+  | "CENTRAL";
 
 export type DocId =
   | "aadhaar"
@@ -87,6 +124,8 @@ export interface DocDetails {
 
 export interface Profile {
   name?: string;
+  email?: string;
+  phone?: string;
   language: Language;
   state: StateId;
   category: SocialCategory;

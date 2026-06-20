@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import HelpBot from "@/components/HelpBot";
+import AuthGate from "@/components/AuthGate";
 
 export const metadata: Metadata = {
   title: "HaqSetu — The benefits you're owed, found and explained",
@@ -17,7 +18,7 @@ export default function RootLayout({
         className="min-h-full flex flex-col"
         suppressHydrationWarning
       >
-        {children}
+        <AuthGate>{children}</AuthGate>
         <HelpBot />
       </body>
     </html>
