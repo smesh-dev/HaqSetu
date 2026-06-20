@@ -223,92 +223,346 @@ export default function SchemesPage() {
   }
 
   return (
-    <>
+    <div className="animate-page-enter">
       <Nav lang={lang} onLang={setLang} />
-      <main className="mx-auto max-w-3xl px-4 py-6 space-y-5">
-        {/* free-text intake */}
-        <section className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200 no-print">
-          <label className="block text-[15px] font-semibold text-slate-800">{t.describe}</label>
+      <main className="mx-auto max-w-3xl px-4 py-8 space-y-6">
+        {/* Header Tag */}
+        <div className="text-center">
+          <span className="text-[11px] font-bold text-brand-green uppercase tracking-widest">
+            {t.navSchemes}
+          </span>
+          <h1 className="text-2xl font-black text-slate-850 mt-1">
+            {t.describe.replace(/\s*—\s*.*$/, "")}
+          </h1>
+        </div>
+
+        {/* free-text intake card */}
+        <section className="rounded-3xl bg-white p-5 border border-slate-200/80 shadow-2xs hover-lift transition-all no-print">
+          <label className="block text-[13.5px] font-bold text-slate-500 mb-2 uppercase tracking-wide">
+            {t.describe}
+          </label>
           <div className="relative mt-2">
-            <textarea suppressHydrationWarning value={freeText} onChange={(e) => { setFreeText(e.target.value); setParseSource(""); setParseSummary([]); setParseError(""); }} rows={3} placeholder={t.placeholder} className="w-full resize-none rounded-2xl border border-slate-300 p-3 pb-12 pr-14 text-[15px] outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200" />
-            <button type="button" onClick={toggleSpeech} disabled={!speechSupported} aria-label={listening ? t.stopListening : t.startListening} title={listening ? t.stopListening : t.startListening} className={`absolute bottom-3 right-3 grid h-10 w-10 place-items-center rounded-full shadow-sm ring-1 transition ${listening ? "animate-pulse bg-red-500 text-white ring-red-300" : "bg-emerald-600 text-white ring-emerald-500 hover:bg-emerald-700"} disabled:cursor-not-allowed disabled:bg-slate-300 disabled:ring-slate-300`}>
-              {listening ? <span className="h-3.5 w-3.5 rounded-sm bg-current" /> : <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="2" width="6" height="12" rx="3" /><path d="M5 10a7 7 0 0 0 14 0M12 17v5M8 22h8" /></svg>}
+            <textarea
+              suppressHydrationWarning
+              value={freeText}
+              onChange={(e) => {
+                setFreeText(e.target.value);
+                setParseSource("");
+                setParseSummary([]);
+                setParseError("");
+              }}
+              rows={3}
+              placeholder={t.placeholder}
+              className="w-full resize-none rounded-2xl border border-slate-200 p-4 pb-12 pr-14 text-[14.5px] outline-none focus:border-brand-green focus:ring-2 focus:ring-mint-bg transition-all"
+            />
+            <button
+              type="button"
+              onClick={toggleSpeech}
+              disabled={!speechSupported}
+              aria-label={listening ? t.stopListening : t.startListening}
+              title={listening ? t.stopListening : t.startListening}
+              className={`absolute bottom-3.5 right-3.5 grid h-10 w-10 place-items-center rounded-full shadow-sm ring-1 transition-all click-scale ${
+                listening
+                  ? "animate-pulse bg-red-500 text-white ring-red-300"
+                  : "bg-brand-green text-white ring-brand-green hover:bg-brand-green-hover"
+              } disabled:cursor-not-allowed disabled:bg-slate-200 disabled:ring-slate-250`}
+            >
+              {listening ? (
+                <span className="h-3.5 w-3.5 rounded-sm bg-current" />
+              ) : (
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  className="h-5 w-5 fill-none stroke-current"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <rect x="9" y="2" width="6" height="12" rx="3" />
+                  <path d="M5 10a7 7 0 0 0 14 0M12 17v5M8 22h8" />
+                </svg>
+              )}
             </button>
           </div>
-          {listening && <p role="status" className="mt-1.5 text-xs font-medium text-red-600">● {t.listening} ({lang === "hi" ? "हिंदी" : "English"})</p>}
-          {!speechSupported && <p className="mt-1.5 text-xs text-slate-500">{t.micUnsupported}</p>}
-          {speechError && <p role="alert" className="mt-1.5 text-xs text-red-600">{speechError}</p>}
-          <div className="mt-2 flex flex-wrap items-center gap-2">
-            <button onClick={handleParse} disabled={parsing || !freeText.trim()} className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-50">{parsing ? t.reading : `✨ ${t.understand}`}</button>
-            {parseSource && <span role="status" className="text-xs font-medium text-emerald-700">{parseSource === "gemini" ? t.understoodAI : t.understoodLocal}</span>}
+          {listening && (
+            <p role="status" className="mt-2 text-xs font-bold text-red-600 animate-pulse">
+              ● {t.listening} ({lang === "hi" ? "हिंदी" : "English"})
+            </p>
+          )}
+          {!speechSupported && <p className="mt-2 text-xs text-slate-400">{t.micUnsupported}</p>}
+          {speechError && <p role="alert" className="mt-2 text-xs font-semibold text-red-650">{speechError}</p>}
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <button
+              onClick={handleParse}
+              disabled={parsing || !freeText.trim()}
+              className="rounded-2xl bg-brand-green hover:bg-brand-green-hover px-5 py-2.5 text-[13.5px] font-bold text-white transition hover-lift click-scale disabled:opacity-50 disabled:pointer-events-none"
+            >
+              {parsing ? t.reading : `✨ ${t.understand}`}
+            </button>
+            {parseSource && (
+              <span role="status" className="text-xs font-bold text-brand-green bg-mint-bg px-2.5 py-1 rounded-xl border border-mint-border/50">
+                {parseSource === "gemini" ? t.understoodAI : t.understoodLocal}
+              </span>
+            )}
           </div>
-          {parseSummary.length > 0 && <div className="mt-3 rounded-xl bg-emerald-50 p-3 ring-1 ring-emerald-100"><p className="text-xs font-semibold text-emerald-900">{t.detected}</p><div className="mt-2 flex flex-wrap gap-1.5">{parseSummary.map((fact) => <span key={fact} className="rounded-full bg-white px-2.5 py-1 text-xs font-medium text-slate-700 ring-1 ring-emerald-200">{fact}</span>)}</div><p className="mt-2 text-xs text-emerald-800">{t.reviewDetected}</p></div>}
-          {parseError && <p role="alert" className="mt-2 rounded-xl bg-red-50 px-3 py-2 text-xs font-medium text-red-700 ring-1 ring-red-100">{parseError}</p>}
-          <div className="mt-4">
-            <p className="text-xs font-medium text-slate-500">{t.tryPersona}</p>
-            <div className="mt-1.5 flex flex-wrap gap-1.5">{PERSONAS.map((p) => <button key={p.id} onClick={() => loadPersona(p.id)} title={p.blurb} className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-200">{p.name}</button>)}</div>
+          {parseSummary.length > 0 && (
+            <div className="mt-4 rounded-2xl bg-mint-bg/50 p-4 border border-mint-border">
+              <p className="text-xs font-bold text-brand-green uppercase tracking-wider">{t.detected}</p>
+              <div className="mt-2.5 flex flex-wrap gap-2">
+                {parseSummary.map((fact) => (
+                  <span
+                    key={fact}
+                    className="rounded-full bg-white px-3 py-1 text-xs font-bold text-slate-700 border border-mint-border/80 shadow-3xs"
+                  >
+                    {fact}
+                  </span>
+                ))}
+              </div>
+              <p className="mt-2.5 text-xs text-brand-green/90">{t.reviewDetected}</p>
+            </div>
+          )}
+          {parseError && (
+            <p
+              role="alert"
+              className="mt-3 rounded-2xl bg-red-50/70 px-4 py-3 text-xs font-bold text-red-700 border border-red-100"
+            >
+              {parseError}
+            </p>
+          )}
+          <div className="mt-4 pt-3.5 border-t border-slate-100">
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">{t.tryPersona}</p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {PERSONAS.map((p) => (
+                <button
+                  key={p.id}
+                  onClick={() => loadPersona(p.id)}
+                  title={p.blurb}
+                  className="rounded-full bg-slate-50 border border-slate-200/80 px-3.5 py-1.5 text-xs font-bold text-slate-600 transition hover:bg-slate-100 click-scale hover-lift"
+                >
+                  {p.name}
+                </button>
+              ))}
+            </div>
           </div>
         </section>
 
         {/* guided AI intake — value-of-information reasoning */}
-        <section className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-emerald-200 no-print">
-          <div className="flex items-center gap-2"><span className="grid h-8 w-8 place-items-center rounded-lg bg-emerald-50 text-base ring-1 ring-emerald-100">🤖</span><h2 className="text-[15px] font-bold text-slate-800">{t.guidedTitle}</h2></div>
+        <section className="rounded-3xl bg-white p-6 border border-mint-border shadow-2xs hover-lift transition-all no-print">
+          <div className="flex items-center gap-2.5">
+            <span className="grid h-8.5 w-8.5 place-items-center rounded-xl bg-mint-bg text-base border border-mint-border/50">
+              🤖
+            </span>
+            <h2 className="text-[15px] font-extrabold text-slate-800 uppercase tracking-wider">
+              {t.guidedTitle}
+            </h2>
+          </div>
           {guided ? (
-            <div className="mt-3">
-              <p className="text-[16px] font-semibold text-slate-900">{guided.question[lang]}</p>
-              <div className="mt-2 flex flex-wrap gap-2">
+            <div className="mt-4">
+              <p className="text-[16px] font-black text-slate-850">{guided.question[lang]}</p>
+              <div className="mt-3.5 flex flex-col gap-2">
                 {guided.options.map((o, i) => (
-                  <button key={i} onClick={() => { setProfile((p) => o.apply(p)); setAsked((a) => [...a, guided.id]); }} className="rounded-xl bg-white px-3.5 py-2 text-sm font-semibold text-slate-700 ring-1 ring-slate-300 transition hover:bg-emerald-50 hover:ring-emerald-300">{o.label[lang]}</button>
+                  <button
+                    key={i}
+                    onClick={() => {
+                      setProfile((p) => o.apply(p));
+                      setAsked((a) => [...a, guided.id]);
+                    }}
+                    className="w-full text-left rounded-2xl bg-white border border-slate-200 hover:border-brand-green/50 hover:bg-mint-bg/10 px-4 py-3.5 text-sm font-bold text-slate-750 transition-all hover-lift click-scale shadow-3xs flex items-center justify-between"
+                  >
+                    <span>{o.label[lang]}</span>
+                    <span className="text-slate-400">→</span>
+                  </button>
                 ))}
               </div>
-              <p className="mt-2 text-[12px] text-emerald-700">✨ {t.askedBadge} · {t.guidedWhy.replace("{n}", String(guided.impact))}</p>
+              <p className="mt-3 text-[12px] font-bold text-brand-green">
+                ✨ {t.askedBadge} · {t.guidedWhy.replace("{n}", String(guided.impact))}
+              </p>
             </div>
           ) : (
-            <p className="mt-3 text-[14px] font-medium text-emerald-800">✓ {t.guidedDone}</p>
+            <p className="mt-4 text-[14.5px] font-bold text-brand-green">
+              ✓ {t.guidedDone}
+            </p>
           )}
-          <div className="mt-4 flex items-center justify-between gap-3">
-            <span className="text-[12px] text-slate-500">{t.soFar.replace("{n}", String(liveCount))}</span>
-            <button onClick={handleSubmit} disabled={busy} className="rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-emerald-700 disabled:opacity-50">{busy ? t.finding : `🔎 ${t.seeBenefits}`}</button>
+          <div className="mt-5 flex items-center justify-between gap-4 pt-3.5 border-t border-slate-100">
+            <span className="text-[12.5px] font-bold text-slate-450">
+              {t.soFar.replace("{n}", String(liveCount))}
+            </span>
+            <button
+              onClick={handleSubmit}
+              disabled={busy}
+              className="rounded-2xl bg-brand-green hover:bg-brand-green-hover px-5 py-3 text-sm font-bold text-white shadow-sm transition hover-lift click-scale disabled:opacity-50 disabled:pointer-events-none"
+            >
+              {busy ? t.finding : `🔎 ${t.seeBenefits}`}
+            </button>
           </div>
         </section>
 
         {/* manual form (optional / advanced) */}
         <details className="group no-print">
-          <summary className="cursor-pointer list-none rounded-2xl bg-white px-5 py-3 text-[14px] font-semibold text-slate-700 shadow-sm ring-1 ring-slate-200 marker:hidden"><span className="inline-block transition group-open:rotate-90">▸</span> {t.orForm}</summary>
-          <div className="mt-3 space-y-5">
-        {/* who */}
-        <section className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200 no-print">
-          <h2 className="text-[15px] font-bold text-slate-800">{t.whoTitle}</h2>
-          <p className="mt-3 text-[13px] font-medium text-slate-600">{t.category}</p>
-          <div className="mt-1.5 flex flex-wrap gap-2">{(["SC", "ST", "OBC", "EWS", "GENERAL"] as const).map((c) => <Chip key={c} active={profile.category === c} onClick={() => setProfile((p) => ({ ...p, category: c }))} label={c === "GENERAL" ? (lang === "hi" ? "सामान्य" : "General") : c} />)}</div>
-          <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <div><p className="mb-1 text-[13px] font-medium text-slate-600">{t.age}</p><input type="number" value={profile.age ?? ""} onChange={(e) => setProfile((p) => ({ ...p, age: e.target.value === "" ? undefined : Number(e.target.value) }))} placeholder="—" className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200" /></div>
-            <div><p className="mb-1 text-[13px] font-medium text-slate-600">{t.gender}</p><div className="flex gap-1.5">{(["female", "male", "other"] as const).map((g) => <Chip key={g} small active={profile.gender === g} onClick={() => setProfile((p) => ({ ...p, gender: g }))} label={g === "female" ? (lang === "hi" ? "महिला" : "Woman") : g === "male" ? (lang === "hi" ? "पुरुष" : "Man") : (lang === "hi" ? "अन्य" : "Other")} />)}</div></div>
-            <div><p className="mb-1 text-[13px] font-medium text-slate-600">{t.state}</p><div className="flex gap-1.5">{(["RAJASTHAN", "BIHAR", "CENTRAL"] as const).map((s) => <Chip key={s} small active={profile.state === s} onClick={() => setProfile((p) => ({ ...p, state: s }))} label={s === "RAJASTHAN" ? (lang === "hi" ? "राजस्थान" : "Rajasthan") : s === "BIHAR" ? (lang === "hi" ? "बिहार" : "Bihar") : (lang === "hi" ? "अन्य" : "Other")} />)}</div></div>
-          </div>
-          <div className="mt-4"><p className="mb-1 text-[13px] font-medium text-slate-600">{t.income}</p><input type="number" value={profile.annualHouseholdIncome ?? ""} onChange={(e) => setProfile((p) => ({ ...p, annualHouseholdIncome: e.target.value === "" ? undefined : Number(e.target.value) }))} placeholder="e.g. 90000" className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 sm:w-1/2" /></div>
-        </section>
+          <summary className="cursor-pointer list-none rounded-2xl bg-white px-5 py-4 text-[14px] font-extrabold text-slate-700 shadow-2xs border border-slate-250/80 marker:hidden flex items-center justify-between hover-lift transition">
+            <span>{t.orForm}</span>
+            <span className="inline-block transition-transform duration-250 group-open:rotate-90">▸</span>
+          </summary>
+          <div className="mt-4 space-y-6">
+            {/* who */}
+            <section className="rounded-3xl bg-white p-5 border border-slate-200/80 shadow-2xs hover-lift transition">
+              <h2 className="text-[15px] font-extrabold text-slate-850 uppercase tracking-wider">{t.whoTitle}</h2>
+              <p className="mt-3.5 text-[12.5px] font-bold text-slate-500 uppercase tracking-wider">
+                {t.category}
+              </p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {(["SC", "ST", "OBC", "EWS", "GENERAL"] as const).map((c) => (
+                  <Chip
+                    key={c}
+                    active={profile.category === c}
+                    onClick={() => setProfile((p) => ({ ...p, category: c }))}
+                    label={c === "GENERAL" ? (lang === "hi" ? "सामान्य" : "General") : c}
+                  />
+                ))}
+              </div>
+              <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <div>
+                  <p className="mb-1.5 text-[12.5px] font-bold text-slate-500 uppercase tracking-wider">{t.age}</p>
+                  <input
+                    type="number"
+                    value={profile.age ?? ""}
+                    onChange={(e) =>
+                      setProfile((p) => ({
+                        ...p,
+                        age: e.target.value === "" ? undefined : Number(e.target.value),
+                      }))
+                    }
+                    placeholder="—"
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm font-bold outline-none focus:border-brand-green focus:ring-2 focus:ring-mint-bg transition"
+                  />
+                </div>
+                <div>
+                  <p className="mb-1.5 text-[12.5px] font-bold text-slate-500 uppercase tracking-wider">{t.gender}</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {(["female", "male", "other"] as const).map((g) => (
+                      <Chip
+                        key={g}
+                        small
+                        active={profile.gender === g}
+                        onClick={() => setProfile((p) => ({ ...p, gender: g }))}
+                        label={
+                          g === "female"
+                            ? lang === "hi"
+                              ? "महिला"
+                              : "Woman"
+                            : g === "male"
+                            ? lang === "hi"
+                              ? "पुरुष"
+                              : "Man"
+                            : lang === "hi"
+                            ? "अन्य"
+                            : "Other"
+                        }
+                      />
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <p className="mb-1.5 text-[12.5px] font-bold text-slate-500 uppercase tracking-wider">{t.state}</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {(["RAJASTHAN", "BIHAR", "CENTRAL"] as const).map((s) => (
+                      <Chip
+                        key={s}
+                        small
+                        active={profile.state === s}
+                        onClick={() => setProfile((p) => ({ ...p, state: s }))}
+                        label={
+                          s === "RAJASTHAN"
+                            ? lang === "hi"
+                              ? "राजस्थान"
+                              : "Rajasthan"
+                            : s === "BIHAR"
+                            ? lang === "hi"
+                              ? "बिहार"
+                              : "Bihar"
+                            : lang === "hi"
+                            ? "अन्य"
+                              : "Other"
+                        }
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div className="mt-5">
+                <p className="mb-1.5 text-[12.5px] font-bold text-slate-500 uppercase tracking-wider">{t.income}</p>
+                <input
+                  type="number"
+                  value={profile.annualHouseholdIncome ?? ""}
+                  onChange={(e) =>
+                    setProfile((p) => ({
+                      ...p,
+                      annualHouseholdIncome: e.target.value === "" ? undefined : Number(e.target.value),
+                    }))
+                  }
+                  placeholder="e.g. 90000"
+                  className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm font-bold outline-none focus:border-brand-green focus:ring-2 focus:ring-mint-bg transition sm:w-1/2"
+                />
+              </div>
+            </section>
 
-        {/* situation */}
-        <section className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200 no-print">
-          <h2 className="text-[15px] font-bold text-slate-800">{t.situationTitle}</h2>
-          <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">{SITUATIONS.map((s) => <BigChip key={s.key} icon={s.icon} label={lang === "hi" ? s.hi : s.en} active={s.active(profile)} onClick={() => setProfile((p: Profile) => (s.active(p) ? s.off(p) : s.on(p)))} />)}</div>
-          <div className="mt-3 flex items-center justify-between rounded-2xl bg-slate-50 px-3 py-2 ring-1 ring-slate-200">
-            <p className="text-[12px] text-slate-600">{t.docsHint}</p>
-            <Link href="/documents" className="text-[12px] font-semibold text-emerald-700 hover:underline">{t.editDocs}</Link>
-          </div>
-          <button onClick={handleSubmit} disabled={busy} className="mt-4 w-full rounded-2xl bg-emerald-600 py-3.5 text-base font-bold text-white shadow-sm transition hover:bg-emerald-700 disabled:opacity-50">{busy ? t.finding : `🔎 ${t.submit}`}</button>
-        </section>
+            {/* situation */}
+            <section className="rounded-3xl bg-white p-5 border border-slate-200/80 shadow-2xs hover-lift transition">
+              <h2 className="text-[15px] font-extrabold text-slate-850 uppercase tracking-wider">{t.situationTitle}</h2>
+              <div className="mt-4.5 grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+                {SITUATIONS.map((s) => (
+                  <BigChip
+                    key={s.key}
+                    icon={s.icon}
+                    label={lang === "hi" ? s.hi : s.en}
+                    active={s.active(profile)}
+                    onClick={() => setProfile((p: Profile) => (s.active(p) ? s.off(p) : s.on(p)))}
+                  />
+                ))}
+              </div>
+              <div className="mt-4 flex items-center justify-between rounded-2xl bg-slate-50 p-4 border border-slate-200/60 shadow-3xs">
+                <p className="text-[12.5px] text-slate-500 font-semibold leading-relaxed">{t.docsHint}</p>
+                <Link
+                  href="/documents"
+                  className="text-[12.5px] font-bold text-brand-green hover:text-brand-green-hover shrink-0 hover:underline"
+                >
+                  {t.editDocs}
+                </Link>
+              </div>
+              <button
+                onClick={handleSubmit}
+                disabled={busy}
+                className="mt-5 w-full rounded-2xl bg-brand-green hover:bg-brand-green-hover py-3.5 text-[15.5px] font-bold text-white shadow-md transition hover-lift click-scale disabled:opacity-50"
+              >
+                {busy ? t.finding : `🔎 ${t.submit}`}
+              </button>
+            </section>
           </div>
         </details>
 
         {/* results */}
         {result && (
-          <div ref={resultRef} className="space-y-5 fade-up">
-            <div className="hidden print:block text-lg font-bold text-slate-900">HaqSetu — {lang === "hi" ? "मेरी लाभ योजना" : "my benefit plan"}</div>
-            <div className="flex justify-end gap-2 no-print">
-              <button onClick={() => window.print()} className="rounded-xl bg-slate-800 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-900">🖨️ {t.printPlan}</button>
-              <button onClick={() => { setResult(null); setExplanation(null); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-600 ring-1 ring-slate-300">{t.reset}</button>
+          <div ref={resultRef} className="space-y-6 fade-up">
+            <div className="hidden print:block text-lg font-bold text-slate-900">
+              HaqSetu — {lang === "hi" ? "मेरी लाभ योजना" : "my benefit plan"}
+            </div>
+            <div className="flex justify-end gap-2.5 no-print">
+              <button
+                onClick={() => window.print()}
+                className="rounded-2xl bg-slate-850 hover:bg-slate-900 px-4 py-2.5 text-xs font-bold text-white hover-lift click-scale transition"
+              >
+                🖨️ {t.printPlan}
+              </button>
+              <button
+                onClick={() => {
+                  setResult(null);
+                  setExplanation(null);
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+                className="rounded-2xl bg-white border border-slate-200 px-4 py-2.5 text-xs font-bold text-slate-550 hover-lift click-scale hover:bg-slate-50 transition"
+              >
+                {t.reset}
+              </button>
             </div>
 
             <Hero a={result} lang={lang} />
@@ -316,36 +570,101 @@ export default function SchemesPage() {
             <TrapCard a={result} lang={lang} />
 
             {explanation?.text && (
-              <section className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-                <div className="flex items-center gap-2"><h3 className="text-[15px] font-bold text-slate-800">💬 {t.explainTitle}</h3><span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">{explanation.source === "gemini" ? "Gemini" : "offline"}</span></div>
-                <p className="mt-2 whitespace-pre-line text-[15px] leading-relaxed text-slate-700">{explanation.text}</p>
-                <p className="mt-2 text-[11px] italic text-slate-400">{t.explainNote}</p>
+              <section className="rounded-3xl bg-white p-5 border border-slate-200/80 shadow-2xs hover-lift transition">
+                <div className="flex items-center gap-2.5">
+                  <h3 className="text-[15px] font-bold text-slate-850">💬 {t.explainTitle}</h3>
+                  <span className="rounded-lg bg-mint-bg px-2.5 py-0.5 text-[10.5px] font-bold text-brand-green border border-mint-border/50">
+                    {explanation.source === "gemini" ? "Gemini" : "offline"}
+                  </span>
+                </div>
+                <p className="mt-3.5 whitespace-pre-line text-[14.5px] leading-relaxed text-slate-650">
+                  {explanation.text}
+                </p>
+                <p className="mt-3 text-[11px] italic text-slate-400 font-semibold">{t.explainNote}</p>
               </section>
             )}
 
-            <div className="space-y-3">{result.matches.map((m) => <BenefitCard key={m.id} m={m} lang={lang} isTracked={isTracked(m.id)} onTrack={toggleTrack} />)}</div>
+            <div className="space-y-4">
+              {result.matches.map((m) => (
+                <BenefitCard
+                  key={m.id}
+                  m={m}
+                  lang={lang}
+                  isTracked={isTracked(m.id)}
+                  onTrack={toggleTrack}
+                />
+              ))}
+            </div>
 
             {result.actionPlan.length > 0 && (
-              <section className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-                <h3 className="text-[15px] font-bold text-slate-900">🧭 {t.planTitle}</h3>
-                <ol className="mt-3 space-y-3">{result.actionPlan.map((s) => (
-                  <li key={s.order} className="flex gap-3"><span className={`grid h-7 w-7 shrink-0 place-items-center rounded-full text-xs font-bold text-white ${s.kind === "get_document" ? "bg-amber-500" : s.kind === "apply_scheme" ? "bg-emerald-600" : "bg-slate-500"}`}>{s.order}</span><div><p className="text-[15px] font-semibold text-slate-800">{s.title[lang]}</p><p className="text-[13px] text-slate-600">{s.detail[lang]}</p></div></li>
-                ))}</ol>
+              <section className="rounded-3xl bg-white p-5 border border-slate-200/80 shadow-2xs hover-lift transition">
+                <h3 className="text-[15px] font-bold text-slate-850">🧭 {t.planTitle}</h3>
+                <ol className="mt-4 space-y-4">
+                  {result.actionPlan.map((s) => (
+                    <li key={s.order} className="flex gap-4">
+                      <span
+                        className={`grid h-8.5 w-8.5 shrink-0 place-items-center rounded-full text-xs font-bold text-white shadow-3xs ${
+                          s.kind === "get_document"
+                            ? "bg-amber-500"
+                            : s.kind === "apply_scheme"
+                            ? "bg-brand-green"
+                            : "bg-slate-500"
+                        }`}
+                      >
+                        {s.order}
+                      </span>
+                      <div>
+                        <p className="text-[15px] font-bold text-slate-800">{s.title[lang]}</p>
+                        <p className="text-[13.5px] text-slate-550 leading-relaxed mt-0.5">
+                          {s.detail[lang]}
+                        </p>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
               </section>
             )}
 
-            <label className="no-print flex items-center gap-2 rounded-2xl bg-white p-3 text-[12px] text-slate-600 shadow-sm ring-1 ring-slate-200"><input type="checkbox" checked={aiConsent} onChange={(e) => setAIConsent(e.target.checked)} className="h-4 w-4 rounded" /> {t.aiConsent}</label>
+            <label className="no-print flex items-center gap-2.5 rounded-2xl bg-white border border-slate-200/80 p-4 text-[12.5px] text-slate-550 shadow-3xs cursor-pointer select-none hover-lift hover:bg-slate-50/55 transition-colors">
+              <input
+                type="checkbox"
+                checked={aiConsent}
+                onChange={(e) => setAIConsent(e.target.checked)}
+                className="h-4.5 w-4.5 rounded border-slate-300 text-brand-green focus:ring-mint-bg cursor-pointer"
+              />
+              <span className="font-semibold leading-none">{t.aiConsent}</span>
+            </label>
 
-            <section className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-              <h3 className="text-[15px] font-bold text-slate-800">📚 {t.sources}</h3>
-              <ul className="mt-3 space-y-2.5">{result.citations.map((c) => (
-                <li key={c.id} className="text-[13px] leading-snug"><p className="font-semibold text-slate-800">{c.label[lang]} <span className="ml-1 font-normal text-slate-400">· {c.asOf}</span></p><p className="text-slate-600">{c.source}</p>{c.note && <p className="text-slate-500">{c.note[lang]}</p>}{c.url && <a href={c.url} target="_blank" rel="noreferrer" className="text-emerald-700 hover:underline">{t.verify} ↗</a>}</li>
-              ))}</ul>
+            <section className="rounded-3xl bg-white p-5 border border-slate-200/80 shadow-2xs hover-lift transition">
+              <h3 className="text-[15px] font-bold text-slate-850">📚 {t.sources}</h3>
+              <ul className="mt-4 space-y-4 divide-y divide-slate-100">
+                {result.citations.map((c, idx) => (
+                  <li key={c.id} className={`text-[13.5px] leading-relaxed ${idx > 0 ? "pt-4" : ""}`}>
+                    <p className="font-bold text-slate-800">
+                      {c.label[lang]} <span className="ml-1 text-xs font-semibold text-slate-405">· {c.asOf}</span>
+                    </p>
+                    <p className="text-slate-550">{c.source}</p>
+                    {c.note && <p className="text-slate-500 italic mt-0.5">{c.note[lang]}</p>}
+                    {c.url && (
+                      <a
+                        href={c.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-brand-green font-bold hover:text-brand-green-hover hover:underline inline-flex items-center gap-0.5 mt-1"
+                      >
+                        {t.verify} ↗
+                      </a>
+                    )}
+                  </li>
+                ))}
+              </ul>
             </section>
           </div>
         )}
-        <footer className="pb-10 pt-2 text-center text-[11px] text-slate-400">{t.trust}</footer>
+        <footer className="pb-10 pt-4 text-center text-[11px] font-semibold text-slate-400 max-w-sm mx-auto leading-normal">
+          {t.trust}
+        </footer>
       </main>
-    </>
+    </div>
   );
 }

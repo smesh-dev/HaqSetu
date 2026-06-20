@@ -39,75 +39,175 @@ export default function DocumentsPage() {
   const hasDocs = profile.documentsHave.length > 0;
 
   return (
-    <>
+    <div className="animate-page-enter">
       <Nav lang={lang} onLang={setLang} />
-      <main className="mx-auto max-w-3xl px-4 py-6 space-y-5">
-        <section className="rounded-3xl border border-emerald-200 bg-emerald-50 p-5">
-          <h1 className="text-xl font-extrabold text-emerald-900">🗂️ {t.docsTitle}</h1>
-          <p className="mt-1 text-[14px] text-emerald-800">{t.docsLead}</p>
-          <p className="mt-2 inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-1 text-[11px] font-semibold text-emerald-700 ring-1 ring-emerald-200">🔒 {t.privacyChip}</p>
-        </section>
+      <main className="mx-auto max-w-3xl px-4 py-8 space-y-6">
+        {/* Header Tag */}
+        <div className="text-center">
+          <span className="text-[11px] font-bold text-brand-green uppercase tracking-widest">
+            {t.docsTitle}
+          </span>
+          <h1 className="text-2xl font-black text-slate-850 mt-1">
+            {t.docsLead.replace(/\s*—\s*.*$/, "")}
+          </h1>
+          <p className="text-[13.5px] text-slate-500 mt-1 leading-relaxed">
+            {t.uploadNote}
+          </p>
+        </div>
 
-        {/* upload from device */}
-        <section className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h2 className="text-[15px] font-bold text-slate-800">{t.uploadTitle}</h2>
-              <p className="mt-1 text-[12px] text-slate-500">{t.uploadHint}</p>
+        {/* upload from device card */}
+        <section className="rounded-3xl bg-white p-5 border border-slate-200/80 shadow-2xs hover-lift transition-all">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0">
+              <h2 className="text-[15px] font-extrabold text-slate-850 uppercase tracking-wider">{t.uploadTitle}</h2>
+              <p className="mt-1 text-[13px] text-slate-500 leading-relaxed">{t.uploadHint}</p>
             </div>
-            <label htmlFor="device-upload" className="inline-flex cursor-pointer items-center justify-center rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-emerald-700">
+            <label
+              htmlFor="device-upload"
+              className="inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-2xl bg-brand-green hover:bg-brand-green-hover px-5 py-3 text-sm font-bold text-white transition hover-lift click-scale shadow-xs select-none shrink-0"
+            >
               📁 {t.uploadButton}
             </label>
-            <input id="device-upload" type="file" multiple accept="image/*,.pdf,.doc,.docx,.txt,.rtf" className="hidden" onChange={handleUpload} />
+            <input
+              id="device-upload"
+              type="file"
+              multiple
+              accept="image/*,.pdf,.doc,.docx,.txt,.rtf"
+              className="hidden"
+              onChange={handleUpload}
+            />
           </div>
           {uploadedFiles.length > 0 && (
-            <ul className="mt-3 space-y-2 rounded-2xl bg-slate-50 p-3 ring-1 ring-slate-200">
+            <ul className="mt-4 space-y-2 rounded-2xl bg-slate-50 p-4 border border-slate-100 shadow-3xs">
               {uploadedFiles.map((file, index) => (
-                <li key={`${file.name}-${index}`} className="flex items-center justify-between gap-3 text-[12px] text-slate-700">
+                <li
+                  key={`${file.name}-${index}`}
+                  className="flex items-center justify-between gap-3 text-xs font-bold text-slate-650"
+                >
                   <span className="truncate">{file.name}</span>
-                  <span className="shrink-0 text-slate-500">{formatSize(file.size)}</span>
+                  <span className="shrink-0 text-slate-400 font-semibold">{formatSize(file.size)}</span>
                 </li>
               ))}
             </ul>
           )}
-          <p className="mt-2 text-[11px] text-slate-400">{t.uploadNote}</p>
         </section>
 
-        {/* vault */}
-        <section className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-          <h2 className="text-[15px] font-bold text-slate-800">{t.haveQ}</h2>
-          <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">{ALL_DOCS.map((d) => <BigChip key={d} icon={DOC_ICON[d]} label={t.docNames[d]} active={profile.documentsHave.includes(d)} onClick={() => toggleDoc(d)} />)}</div>
+        {/* vault checklist card */}
+        <section className="rounded-3xl bg-white p-5 border border-slate-200/80 shadow-2xs hover-lift transition-all">
+          <h2 className="text-[15px] font-extrabold text-slate-850 uppercase tracking-wider mb-3.5">
+            {t.haveQ}
+          </h2>
+          <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+            {ALL_DOCS.map((d) => (
+              <BigChip
+                key={d}
+                icon={DOC_ICON[d]}
+                label={t.docNames[d]}
+                active={profile.documentsHave.includes(d)}
+                onClick={() => toggleDoc(d)}
+              />
+            ))}
+          </div>
 
           {hasDocs && (
-            <div className="mt-5 space-y-4 border-t border-slate-100 pt-4">
+            <div className="mt-6 space-y-5 border-t border-slate-100 pt-5">
               <div>
-                <h3 className="text-[14px] font-bold text-slate-800">{t.detailsTitle}</h3>
-                <p className="mt-0.5 text-[12px] text-slate-500">{t.detailsHint}</p>
+                <h3 className="text-[14.5px] font-bold text-slate-800">{t.detailsTitle}</h3>
+                <p className="mt-0.5 text-[12.5px] text-slate-500 leading-relaxed">{t.detailsHint}</p>
               </div>
-              <div className="space-y-2">
-                {profile.documentsHave.filter((d) => ["aadhaar", "bank", "caste", "income", "ration_bpl"].includes(d)).map((d) => (
-                  <div key={d}><p className="mb-1 text-[12px] font-medium text-slate-600">{t.nameOnDoc} {t.docNames[d]}</p><input value={profile.docDetails?.names?.[d] ?? ""} onChange={(e) => setName(d, e.target.value)} placeholder="—" className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200" /></div>
-                ))}
+              <div className="grid gap-4 sm:grid-cols-2">
+                {profile.documentsHave
+                  .filter((d) => ["aadhaar", "bank", "caste", "income", "ration_bpl"].includes(d))
+                  .map((d) => (
+                    <div key={d}>
+                      <p className="mb-1.5 text-[13px] font-bold text-slate-600">
+                        {t.nameOnDoc} {t.docNames[d]}
+                      </p>
+                      <input
+                        value={profile.docDetails?.names?.[d] ?? ""}
+                        onChange={(e) => setName(d, e.target.value)}
+                        placeholder="—"
+                        className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm font-bold outline-none focus:border-brand-green focus:ring-2 focus:ring-mint-bg transition"
+                      />
+                    </div>
+                  ))}
               </div>
-              {profile.documentsHave.includes("bank") && (<>
-                <YNU label={t.seedQ} value={profile.docDetails?.bankAadhaarSeeded} onChange={(v) => setDD({ bankAadhaarSeeded: v })} t={t} />
-                <YNU label={t.dormantQ} value={profile.docDetails?.bankDormant} onChange={(v) => setDD({ bankDormant: v })} t={t} />
-                <div><p className="mb-1 text-[12px] font-medium text-slate-600">{t.ifscLabel}</p><input value={profile.docDetails?.bankIfsc ?? ""} onChange={(e) => setDD({ bankIfsc: e.target.value })} placeholder="SBIN0001234" className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 sm:w-1/2" /></div>
-              </>)}
-              {profile.documentsHave.includes("aadhaar") && <YNU label={t.mobileQ} value={profile.docDetails?.aadhaarMobileLinked} onChange={(v) => setDD({ aadhaarMobileLinked: v })} t={t} />}
-              {profile.documentsHave.includes("caste") && profile.category === "OBC" && <YNU label={t.nclQ} value={profile.docDetails?.casteIsNCL} onChange={(v) => setDD({ casteIsNCL: v })} t={t} />}
-              {profile.documentsHave.includes("income") && <div><p className="mb-1 text-[12px] font-medium text-slate-600">{t.incomeYearQ}</p><input type="number" value={profile.docDetails?.incomeCertYear ?? ""} onChange={(e) => setDD({ incomeCertYear: e.target.value === "" ? undefined : Number(e.target.value) })} placeholder="2024" className="w-32 rounded-lg border border-slate-300 px-3 py-1.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200" /></div>}
+              <div className="space-y-4 pt-3 border-t border-slate-50">
+                {profile.documentsHave.includes("bank") && (
+                  <>
+                    <YNU
+                      label={t.seedQ}
+                      value={profile.docDetails?.bankAadhaarSeeded}
+                      onChange={(v) => setDD({ bankAadhaarSeeded: v })}
+                      t={t}
+                    />
+                    <YNU
+                      label={t.dormantQ}
+                      value={profile.docDetails?.bankDormant}
+                      onChange={(v) => setDD({ bankDormant: v })}
+                      t={t}
+                    />
+                    <div>
+                      <p className="mb-1.5 text-[13px] font-bold text-slate-600">{t.ifscLabel}</p>
+                      <input
+                        value={profile.docDetails?.bankIfsc ?? ""}
+                        onChange={(e) => setDD({ bankIfsc: e.target.value })}
+                        placeholder="SBIN0001234"
+                        className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm font-bold outline-none focus:border-brand-green focus:ring-2 focus:ring-mint-bg transition sm:w-1/2"
+                      />
+                    </div>
+                  </>
+                )}
+                {profile.documentsHave.includes("aadhaar") && (
+                  <YNU
+                    label={t.mobileQ}
+                    value={profile.docDetails?.aadhaarMobileLinked}
+                    onChange={(v) => setDD({ aadhaarMobileLinked: v })}
+                    t={t}
+                  />
+                )}
+                {profile.documentsHave.includes("caste") && profile.category === "OBC" && (
+                  <YNU
+                    label={t.nclQ}
+                    value={profile.docDetails?.casteIsNCL}
+                    onChange={(v) => setDD({ casteIsNCL: v })}
+                    t={t}
+                  />
+                )}
+                {profile.documentsHave.includes("income") && (
+                  <div>
+                    <p className="mb-1.5 text-[13px] font-bold text-slate-600">{t.incomeYearQ}</p>
+                    <input
+                      type="number"
+                      value={profile.docDetails?.incomeCertYear ?? ""}
+                      onChange={(e) =>
+                        setDD({
+                          incomeCertYear: e.target.value === "" ? undefined : Number(e.target.value),
+                        })
+                      }
+                      placeholder="2024"
+                      className="w-32 rounded-2xl border border-slate-200 px-4 py-2 text-sm font-bold outline-none focus:border-brand-green focus:ring-2 focus:ring-mint-bg transition"
+                    />
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </section>
 
         {/* live rejection-proofing audit */}
-        {hasDocs ? <ReadinessCard r={assessment.readiness} lang={lang} /> : (
-          <section className="rounded-3xl bg-white p-5 text-center text-[14px] text-slate-500 shadow-sm ring-1 ring-slate-200">{t.addFirst}</section>
+        {hasDocs ? (
+          <ReadinessCard r={assessment.readiness} lang={lang} />
+        ) : (
+          <section className="rounded-3xl bg-white p-6 text-center text-[14px] text-slate-500 border border-slate-200/80 shadow-2xs hover-lift transition">
+            {t.addFirst}
+          </section>
         )}
 
-        <footer className="pb-10 pt-2 text-center text-[11px] text-slate-400">{t.trust}</footer>
+        <footer className="pb-10 pt-4 text-center text-[11px] font-semibold text-slate-400 max-w-sm mx-auto leading-normal">
+          {t.trust}
+        </footer>
       </main>
-    </>
+    </div>
   );
 }

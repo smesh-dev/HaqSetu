@@ -13,9 +13,9 @@ export default function Home() {
   const t = T[lang];
 
   const steps = [
-    { t: t.step1Title, b: t.step1Body, icon: "🔎" },
-    { t: t.step2Title, b: t.step2Body, icon: "🛡️" },
-    { t: t.step3Title, b: t.step3Body, icon: "📍" },
+    { t: t.step1Title, b: t.step1Body },
+    { t: t.step2Title, b: t.step2Body },
+    { t: t.step3Title, b: t.step3Body },
   ];
   const entries: [string, string, string, string][] = [
     ["/schemes", "🔎", t.openSchemes, t.navSchemes],
@@ -24,61 +24,106 @@ export default function Home() {
   ];
 
   return (
-    <>
+    <div className="animate-page-enter">
       <Nav lang={lang} onLang={setLang} />
-      <main className="mx-auto max-w-3xl px-4 py-6 space-y-5">
-        {/* Hero */}
-        <section className="rounded-3xl bg-gradient-to-br from-emerald-600 to-teal-600 p-6 text-white shadow-md">
-          <span className="inline-flex items-center gap-1 rounded-full bg-white/15 px-2.5 py-1 text-[11px] font-semibold ring-1 ring-white/20">🔒 {t.privacyChip}</span>
-          <h1 className="mt-3 text-3xl font-extrabold leading-tight">{t.homeHeadline}</h1>
-          <p className="mt-2 text-[15px] text-emerald-50">{t.homeSub}</p>
-          <Link href="/schemes" className="mt-4 inline-block rounded-2xl bg-white px-5 py-3 text-base font-bold text-emerald-700 shadow-sm transition hover:bg-emerald-50">🔎 {t.homeStart}</Link>
+      <main className="mx-auto max-w-3xl px-4 py-8 space-y-6">
+        {/* Centered Hero Section */}
+        <section className="text-center py-6 space-y-4">
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-mint-bg px-4 py-1.5 text-xs font-bold text-brand-green border border-mint-border shadow-3xs">
+            <span>🔒</span>
+            <span>{t.privacyChip}</span>
+          </div>
+          <h1 className="text-4xl sm:text-5xl font-black leading-tight text-slate-900 tracking-tight max-w-2xl mx-auto">
+            {t.homeHeadline}
+          </h1>
+          <p className="text-[15.5px] leading-relaxed text-slate-600 max-w-2xl mx-auto">
+            {t.homeSub}
+          </p>
+          <div className="pt-2">
+            <Link
+              href="/schemes"
+              className="inline-flex items-center gap-2 rounded-2xl bg-brand-green hover:bg-brand-green-hover text-white px-6 py-3.5 text-base font-bold transition hover-lift click-scale shadow-sm"
+            >
+              <span>🔎</span>
+              <span>{t.homeStart}</span>
+            </Link>
+          </div>
         </section>
 
-        {/* Entry cards */}
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        {/* Entry cards grid */}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           {entries.map(([href, icon, title, tag]) => (
-            <Link key={href} href={href} className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200 transition hover:ring-emerald-300">
-              <div className="text-2xl">{icon}</div>
-              <p className="mt-2 text-[15px] font-bold text-slate-900">{tag}</p>
-              <p className="mt-0.5 text-[13px] text-emerald-700">{title} →</p>
+            <Link
+              key={href}
+              href={href}
+              className="rounded-3xl bg-white p-5 border border-slate-200/80 shadow-2xs hover-lift transition-all click-scale"
+            >
+              <div className="text-3xl">{icon}</div>
+              <p className="mt-3.5 text-[15.5px] font-extrabold text-slate-850">{tag}</p>
+              <p className="mt-1 text-[13px] font-bold text-brand-green flex items-center gap-1">
+                <span>{title}</span>
+                <span>→</span>
+              </p>
             </Link>
           ))}
         </div>
 
         {/* How it works */}
-        <section className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-          <h2 className="text-[15px] font-bold text-slate-800">{t.homeHow}</h2>
-          <ol className="mt-3 space-y-3">
-            {steps.map((s) => (
-              <li key={s.t} className="flex gap-3">
-                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-emerald-50 text-lg ring-1 ring-emerald-100">{s.icon}</span>
-                <div><p className="text-[15px] font-semibold text-slate-800">{s.t}</p><p className="text-[13px] text-slate-600">{s.b}</p></div>
+        <section className="rounded-3xl bg-white p-6 border border-slate-200/80 shadow-2xs hover-lift transition-all">
+          <h2 className="text-[15px] font-extrabold text-slate-850 uppercase tracking-wider">{t.homeHow}</h2>
+          <ol className="mt-4.5 space-y-4">
+            {steps.map((s, idx) => (
+              <li key={s.t} className="flex items-start gap-4">
+                <span className="grid h-8.5 w-8.5 shrink-0 place-items-center rounded-full bg-mint-bg text-sm font-black text-brand-green border border-mint-border/50">
+                  {idx + 1}
+                </span>
+                <div>
+                  <p className="text-[15px] font-extrabold text-slate-850">
+                    {s.t.replace(/^\d\s*·\s*/, "")}
+                  </p>
+                  <p className="text-[13.5px] leading-relaxed text-slate-600 mt-0.5">{s.b}</p>
+                </div>
               </li>
             ))}
           </ol>
         </section>
 
         {/* Engine framing */}
-        <section className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-          <div className="flex items-start gap-3">
-            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-emerald-50 text-xl ring-1 ring-emerald-100">⚙️</span>
+        <section className="rounded-3xl bg-white p-6 border border-slate-200/80 shadow-2xs hover-lift transition-all">
+          <div className="flex items-start gap-4">
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-mint-bg text-xl border border-mint-border/30">
+              ⚙️
+            </span>
             <div>
-              <h2 className="text-[15px] font-bold text-slate-800">{t.engineTitle}</h2>
-              <p className="mt-1 text-[13px] leading-relaxed text-slate-600">{t.engineBody}</p>
-              <div className="mt-2 flex flex-wrap gap-1.5">{[t.pillEngine, t.pillCited, t.pillOffline].map((p) => <span key={p} className="rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-semibold text-slate-600 ring-1 ring-slate-200">✓ {p}</span>)}</div>
+              <h2 className="text-[15px] font-extrabold text-slate-850 uppercase tracking-wider">{t.engineTitle}</h2>
+              <p className="mt-1.5 text-[13.5px] leading-relaxed text-slate-600">{t.engineBody}</p>
+              <div className="mt-3.5 flex flex-wrap gap-2">
+                {[t.pillEngine, t.pillCited, t.pillOffline].map((p) => (
+                  <span
+                    key={p}
+                    className="rounded-full bg-slate-50 border border-slate-200 px-3 py-1 text-[11px] font-bold text-slate-600"
+                  >
+                    ✓ {p}
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
         </section>
 
-        {/* Privacy */}
-        <section className="rounded-3xl border border-emerald-200 bg-emerald-50 p-5">
-          <h2 className="text-[15px] font-bold text-emerald-900">🔒 {t.privacyTitle}</h2>
-          <p className="mt-1 text-[13px] leading-relaxed text-emerald-800">{t.privacyBody}</p>
+        {/* Privacy Container */}
+        <section className="rounded-3xl border border-mint-border bg-mint-bg/40 p-5 shadow-3xs flex items-start gap-3 hover-lift transition-all">
+          <span className="text-xl shrink-0">🔒</span>
+          <div>
+            <h2 className="text-[15px] font-bold text-brand-green">{t.privacyTitle}</h2>
+            <p className="mt-1 text-[13.5px] leading-relaxed text-brand-green/90">{t.privacyBody}</p>
+          </div>
         </section>
 
-        <footer className="pb-10 pt-2 text-center text-[11px] text-slate-400">{t.trust}</footer>
+        <footer className="pb-10 pt-4 text-center text-[11px] font-semibold text-slate-400 leading-normal max-w-md mx-auto">
+          {t.trust}
+        </footer>
       </main>
-    </>
+    </div>
   );
 }
