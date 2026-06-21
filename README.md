@@ -41,25 +41,20 @@ The language features (free-text intake and the plain-language explanation) use 
 
 ## Screenshots
 
-<table>
-  <tr>
-    <td width="50%" valign="top">
-      <img src="assets/home.png" width="100%" alt="HaqSetu home page in Hindi" />
-      <br /><sub><b>Home</b> — the four sections and a plain-language assistant, in Hindi or English.</sub>
-    </td>
-    <td width="50%" valign="top">
-      <img src="assets/find-benefits.png" width="100%" alt="Find benefits results showing schemes and unlock path" />
-      <br /><sub><b>Find benefits</b> — schemes you may qualify for, an estimated yearly value, and the single document that unlocks the most.</sub>
-    </td>
-  </tr>
-  <tr>
-    <td width="50%" valign="top">
-      <img src="assets/documents.png" width="100%" alt="My documents page with the rejection check" />
-      <br /><sub><b>My documents</b> — a private local locker plus a rejection check that scores how ready an application is and lists the fixes.</sub>
-    </td>
-    <td width="50%" valign="top"></td>
-  </tr>
-</table>
+<p align="center">
+  <img src="assets/home.png" width="100%" alt="HaqSetu home page in Hindi" />
+  <br /><sub><b>Home</b> — the four sections and a plain-language assistant, in Hindi or English.</sub>
+</p>
+
+<p align="center">
+  <img src="assets/find-benefits.png" width="100%" alt="Find benefits results showing schemes and unlock path" />
+  <br /><sub><b>Find benefits</b> — schemes you may qualify for, an estimated yearly value, and the single document that unlocks the most.</sub>
+</p>
+
+<p align="center">
+  <img src="assets/documents.png" width="100%" alt="My documents page with the rejection check" />
+  <br /><sub><b>My documents</b> — a private local locker plus a rejection check that scores how ready an application is and lists the fixes.</sub>
+</p>
 
 ---
 
@@ -111,14 +106,6 @@ A capable language model can reason about a scheme and even sketch the document 
 - **It is built for someone who cannot prompt** — icon-led intake, full Hindi, works without an API key, and routes to free human help. The people losing benefits are exactly the ones who would never open a chatbot.
 
 Take the language model away and HaqSetu still works, on local parsing and templated explanations. Take the engine away and it is just a chatbot.
-
-## How it maps to the judging criteria
-
-- **Problem Understanding & Context.** The product is built around a specific person at a specific moment — a widow, a landless worker, or a parent of a first-generation student, standing in front of a benefits office without knowing what they are owed. The problem section is grounded in named field research, not assumptions, and the constraints (low literacy, language, the documentation trap) shape the whole design.
-- **AI / Analytics Reasoning.** The division of labour is deliberate: a tested rules engine makes every factual decision, while the language model does the two things it is genuinely good at — reading a messy story into structure and explaining the result kindly. The adaptive intake and the dependency graph are real reasoning steps, and the README is explicit about why a model alone is the wrong tool for facts.
-- **Solution Design & Architecture.** A clear pipeline of input, reasoning, output, action, and tracking, delivered as four connected pages that share one local profile. The scope is honest for an undergraduate team: the logic lives in `lib/rules/` and is covered by a self-test.
-- **Impact & Decision Value.** The app turns "I do not know what I am owed" into a concrete list, a rupee figure, and an ordered plan, and it catches the post-approval payment errors that cause money to be lost even after a yes. That is a measurable change in what a family can actually claim.
-- **Responsibility, Ethics & Limits.** Every verdict is "you may be eligible", never a guarantee. Sources are cited and dated, the model is barred from deciding eligibility, a human officer makes the real decision, the data stays on the device, and the limitations below are stated plainly rather than hidden.
 
 ## Submission details
 
