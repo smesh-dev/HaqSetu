@@ -16,6 +16,18 @@ import { useProfile, clearAll, clearSession, writeProfileForUid } from "@/lib/st
 const DEMO_PHONE_DIGITS = "9999888800";
 const DEMO_OTP = "543210";
 const DEMO_UID = "demo-uid-9999888800";
+
+// Rebuild a locally-authenticated (demo / mock) user from what was stored at
+// sign-in. Crucially it reuses the SAME uid that was saved — never recomputes
+// one — so the profile stays under the same scoped storage key across refreshes.
+function restoreLocalUser(): User | null {
+  if (typeof window === "undefined") return null;
+  if (localStorage.getItem("haqsetu_mock_user") !== "true") return null;
+  const uid = localStorage.getItem("haqsetu_current_uid");
+  if (!uid) return null;
+  const phone = localStorage.getItem("haqsetu_mock_phone") || "";
+  return { uid, phoneNumber: phone } as User;
+}
 import { T } from "@/lib/i18n";
 import type { StateId } from "@/lib/rules/types";
 
@@ -81,15 +93,11 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!isFirebaseConfigured || !auth) {
-      const isMock = localStorage.getItem("haqsetu_mock_user") === "true";
-      if (isMock) {
-        const mockPhone = localStorage.getItem("haqsetu_mock_phone") || "+919876543210";
-        const mockUid = `mock-uid-${mockPhone.replace(/\D/g, "")}`;
-        setUser({ uid: mockUid, phoneNumber: mockPhone } as any);
-        localStorage.setItem("haqsetu_current_uid", mockUid);
-      } else {
-        setUser(null);
-        localStorage.removeItem("haqsetu_current_uid");
+      const localUser = restoreLocalUser();
+      setUser(localUser);
+      if (!localUser) localStorage.removeItem("haqsetu_current_uid");
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("haqsetu-auth-change"));
       }
       setLoading(false);
       return;
@@ -100,16 +108,10 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
         setUser(nextUser);
         localStorage.setItem("haqsetu_current_uid", nextUser.uid);
       } else {
-        const isMock = localStorage.getItem("haqsetu_mock_user") === "true";
-        if (isMock) {
-          const mockPhone = localStorage.getItem("haqsetu_mock_phone") || "+919876543210";
-          const mockUid = `mock-uid-${mockPhone.replace(/\D/g, "")}`;
-          setUser({ uid: mockUid, phoneNumber: mockPhone } as any);
-          localStorage.setItem("haqsetu_current_uid", mockUid);
-        } else {
-          setUser(null);
-          localStorage.removeItem("haqsetu_current_uid");
-        }
+        // No real Firebase session — fall back to a stored demo/mock login if present.
+        const localUser = restoreLocalUser();
+        setUser(localUser);
+        if (!localUser) localStorage.removeItem("haqsetu_current_uid");
       }
 
       if (typeof window !== "undefined") {

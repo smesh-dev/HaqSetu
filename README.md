@@ -6,7 +6,7 @@ USAII Global AI Hackathon 2026 · Undergraduate Track · Challenge 4 ("Fix Syste
 
 Live demo: https://haq-setu-three.vercel.app
 
-HaqSetu is a privacy-first, bilingual web app that helps low-income Indian families find the government welfare schemes they may be entitled to, fix the paperwork mistakes that get applications rejected, and follow each claim until the money actually arrives — in plain Hindi or English.
+HaqSetu is an AI-powered, privacy-first, bilingual web app that helps low-income Indian families find the government welfare schemes they may be entitled to, fix the paperwork mistakes that get applications rejected, and follow each claim until the money actually arrives — in plain Hindi or English. An AI-powered assistant is always one tap away, and opens on its own to offer help if someone has been stuck on a screen for a couple of minutes.
 
 ---
 
@@ -79,6 +79,8 @@ One local profile, entered once, flows through four connected pages:
 - **My documents** is a local locker plus a rejection check. Before a person applies, it reviews their specific documents for the errors that silently sink applications: a name spelled differently across Aadhaar, bank, and certificate; Aadhaar not seeded to the bank for direct transfer; a dormant account; an invalid IFSC; a stale income certificate; an OBC certificate not marked non-creamy-layer. It returns a readiness score and the exact fix for each issue.
 - **Tracker** follows each application from "to start" through "applied", "under verification", "approved", and "money received", keeping the next step clear.
 
+A small **AI-powered assistant** sits in the corner of every page for anyone who gets stuck. It answers questions about the schemes, the documents, and how to use the app, in Hindi or English, and can read its replies aloud. If a person has not touched the screen for a couple of minutes — often a sign they are confused — it opens by itself and offers a hand, instead of waiting to be found.
+
 Throughout, the app shows a running estimate — "you may be entitled to about X rupees a year, plus one-time help" — to turn an abstract maze into a concrete, motivating number, and it points to free human help at a Gram Panchayat or Common Service Centre.
 
 ## How it works
@@ -135,11 +137,13 @@ app/documents/page.tsx    My documents — local locker plus the rejection check
 app/tracker/page.tsx      Tracker — application status from start to money received
 app/profile/page.tsx      Profile — local profile, editable, stored in the browser
 components/AuthGate.tsx    Sign-in gate and onboarding (includes the demo account)
+components/HelpBot.tsx     AI assistant: answers questions, reads aloud, auto-opens when idle
 components/shared.tsx      Navigation and bilingual UI and result components
 lib/store.ts              localStorage hooks (profile, tracked apps, AI consent)
 lib/i18n.ts               Bilingual UI dictionary
 app/api/parse/route.ts    Optional intake: free text to structured profile (Gemini)
 app/api/explain/route.ts  Optional plain-language summary of an on-device result (Gemini)
+app/api/chat/route.ts     AI assistant backend (Gemini) for the help bot
 lib/rules/schemes.ts      Eleven welfare schemes with deterministic eligibility logic
 lib/rules/documents.ts    Foundational documents, prerequisites, poor-friendly alternatives
 lib/rules/inquiry.ts      Adaptive intake: value-of-information next-question selection
