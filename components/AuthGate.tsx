@@ -157,12 +157,6 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
   return () => clearTimeout(timer);
 }, []);
 
-  useEffect(() => {
-    if (!profile.name && name) {
-      setProfile((p) => ({ ...p, name }));
-    }
-  }, [name, profile.name]);
-
   const isProfileComplete = useMemo(() => {
     return Boolean(
       profile.name?.trim() &&

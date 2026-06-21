@@ -21,14 +21,17 @@ export default function ProfilePage() {
   const [editState, setEditState] = useState<StateId>("CENTRAL");
   const [editEmail, setEditEmail] = useState("");
 
-  // Sync edits state with profile initially or when profile updates
+  // Keep the edit fields in sync with the stored profile, but never while the
+  // user is actively editing — otherwise a background profile reload (e.g. an
+  // auth/storage sync firing a fresh object) would overwrite what they're typing.
   useEffect(() => {
+    if (isEditing) return;
     setEditName(profile.name || "");
     setEditAge(profile.age?.toString() || "");
     setEditPhone(profile.phone || "");
     setEditState(profile.state || "CENTRAL");
     setEditEmail(profile.email || "");
-  }, [profile]);
+  }, [profile, isEditing]);
 
   async function handleLogout() {
     try {
