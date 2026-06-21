@@ -1,5 +1,5 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
-import { getAuth, setPersistence, browserSessionPersistence } from "firebase/auth";
+import { getAuth, setPersistence, browserLocalPersistence } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -16,7 +16,7 @@ const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 
 if (typeof window !== "undefined" && isFirebaseConfigured) {
-  setPersistence(auth, browserSessionPersistence).catch((err) => {
+  setPersistence(auth, browserLocalPersistence).catch((err) => {
     console.error("Firebase persistence error:", err);
   });
 }

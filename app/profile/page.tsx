@@ -5,7 +5,7 @@ import { signOut } from "firebase/auth";
 import { Nav } from "@/components/shared";
 import { auth } from "@/lib/firebase";
 import { T } from "@/lib/i18n";
-import { clearAll, initialProfile, useProfile } from "@/lib/store";
+import { clearSession, initialProfile, useProfile } from "@/lib/store";
 import { getStateOptions } from "@/components/AuthGate";
 import type { StateId } from "@/lib/rules/types";
 
@@ -37,13 +37,7 @@ export default function ProfilePage() {
       }
     } catch {}
 
-    const nextProfile = { ...initialProfile, language: profile.language };
-    setProfile(nextProfile);
-    clearAll();
-    localStorage.setItem("haqsetu_profile", JSON.stringify(nextProfile));
-    localStorage.removeItem("haqsetu_tracked");
-    localStorage.removeItem("haqsetu_ai_consent");
-    localStorage.setItem("haqsetu_auth_reset", String(Date.now()));
+    clearSession();
     window.location.replace("/");
   }
 

@@ -10,7 +10,7 @@ import {
   type User,
 } from "firebase/auth";
 import { auth, isFirebaseConfigured } from "@/lib/firebase";
-import { useProfile, clearAll } from "@/lib/store";
+import { useProfile, clearAll, clearSession } from "@/lib/store";
 import { T } from "@/lib/i18n";
 import type { StateId } from "@/lib/rules/types";
 
@@ -70,20 +70,21 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<StateId>(profile.state || "CENTRAL");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [isMockFallback, setIsMockFallback] = useState(false);
   const lang = profile.language;
   const t = T[lang];
 
   useEffect(() => {
     if (!isFirebaseConfigured || !auth) {
-      const isMock = sessionStorage.getItem("haqsetu_mock_user") === "true";
+      const isMock = localStorage.getItem("haqsetu_mock_user") === "true";
       if (isMock) {
-        const mockPhone = sessionStorage.getItem("haqsetu_mock_phone") || "+919876543210";
+        const mockPhone = localStorage.getItem("haqsetu_mock_phone") || "+919876543210";
         const mockUid = `mock-uid-${mockPhone.replace(/\D/g, "")}`;
         setUser({ uid: mockUid, phoneNumber: mockPhone } as any);
-        sessionStorage.setItem("haqsetu_current_uid", mockUid);
+        localStorage.setItem("haqsetu_current_uid", mockUid);
       } else {
         setUser(null);
-        sessionStorage.removeItem("haqsetu_current_uid");
+        localStorage.removeItem("haqsetu_current_uid");
       }
       setLoading(false);
       return;
@@ -92,17 +93,17 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
     const unsubscribe = onAuthStateChanged(auth, (nextUser) => {
       if (nextUser) {
         setUser(nextUser);
-        sessionStorage.setItem("haqsetu_current_uid", nextUser.uid);
+        localStorage.setItem("haqsetu_current_uid", nextUser.uid);
       } else {
-        const isMock = sessionStorage.getItem("haqsetu_mock_user") === "true";
+        const isMock = localStorage.getItem("haqsetu_mock_user") === "true";
         if (isMock) {
-          const mockPhone = sessionStorage.getItem("haqsetu_mock_phone") || "+919876543210";
+          const mockPhone = localStorage.getItem("haqsetu_mock_phone") || "+919876543210";
           const mockUid = `mock-uid-${mockPhone.replace(/\D/g, "")}`;
           setUser({ uid: mockUid, phoneNumber: mockPhone } as any);
-          sessionStorage.setItem("haqsetu_current_uid", mockUid);
+          localStorage.setItem("haqsetu_current_uid", mockUid);
         } else {
           setUser(null);
-          sessionStorage.removeItem("haqsetu_current_uid");
+          localStorage.removeItem("haqsetu_current_uid");
         }
       }
 
@@ -180,77 +181,40 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
     setError("");
   }
 
-  async function handleSendOtp() {
+  async function handleAuthSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+
+    const isDev = typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
     const normalizedPhone = phone.trim();
+
     if (!normalizedPhone) {
       setError("Please enter your phone number.");
       return;
     }
-    setSubmitting(true);
-    setError("");
-    try {
-      if (!isFirebaseConfigured || !auth) {
-        setError("Phone verification is not available until Firebase is configured.");
-          return;
-      }
 
-      const recaptcha = (window as Window & { recaptchaVerifier?: RecaptchaVerifier }).recaptchaVerifier;
-      if (!recaptcha) {
-        setError("Phone verification setup is not ready yet.");
-        return;
-      }
-      await recaptcha.render();
-      const result = await signInWithPhoneNumber(auth, normalizedPhone, recaptcha);
-      setConfirmation(result);
-      setOtpSent(true);
-      setPhone(normalizedPhone);
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "Something went wrong.";
-      setError(message);
-    } finally {
-      setSubmitting(false);
-    }
-  }
+    const mustUseMock = !isFirebaseConfigured || !auth || isMockFallback;
 
-  async function handleVerifyOtp(e: React.FormEvent) {
-    e.preventDefault();
-    if (!otp.trim()) {
-      setError("Please enter the OTP.");
-      return;
-    }
-    setSubmitting(true);
-    setError("");
-    try {
-      if (confirmation) {
-        await confirmation.confirm(otp);
-      } else {
-        setError("OTP confirmation is not available yet.");
-        return;
-      }
-      await saveOnboarding();
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "Something went wrong.";
-      setError(message);
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
-  async function handleAuthSubmit(e: React.FormEvent) {
-    e.preventDefault();
-
-    const isDev = typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
-    if (isDev) {
+    if (mustUseMock && isDev) {
       setSubmitting(true);
-      setError("");
-      const normalizedPhone = phone.trim();
-      if (!normalizedPhone) {
-        setError("Please enter your phone number.");
+      if (!otpSent) {
+        setOtpSent(true);
+        setOtp("123456");
+        setIsMockFallback(true);
+        setSubmitting(false);
+        return;
+      }
+
+      if (otp.trim() !== "123456") {
+        setError("Invalid OTP. For development mock auth, please use 123456.");
         setSubmitting(false);
         return;
       }
 
       const mockUid = `mock-uid-${normalizedPhone.replace(/\D/g, "")}`;
+      localStorage.setItem("haqsetu_mock_user", "true");
+      localStorage.setItem("haqsetu_mock_phone", normalizedPhone);
+      localStorage.setItem("haqsetu_current_uid", mockUid);
 
       if (mode === "signup") {
         const safeAge = Number(age);
@@ -259,9 +223,6 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
           setSubmitting(false);
           return;
         }
-        sessionStorage.setItem("haqsetu_mock_user", "true");
-        sessionStorage.setItem("haqsetu_mock_phone", normalizedPhone);
-        sessionStorage.setItem("haqsetu_current_uid", mockUid);
         setProfile((p) => ({
           ...p,
           name: name.trim(),
@@ -271,9 +232,6 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
         }));
         setUser({ uid: mockUid, phoneNumber: normalizedPhone } as any);
       } else {
-        sessionStorage.setItem("haqsetu_mock_user", "true");
-        sessionStorage.setItem("haqsetu_mock_phone", normalizedPhone);
-        sessionStorage.setItem("haqsetu_current_uid", mockUid);
         setUser({ uid: mockUid, phoneNumber: normalizedPhone } as any);
       }
 
@@ -284,11 +242,73 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    if (otpSent) {
-      await handleVerifyOtp(e);
+    // Real Firebase Auth
+    setSubmitting(true);
+    if (!otpSent) {
+      try {
+        if (!auth) {
+          throw new Error("Firebase Auth is not initialized.");
+        }
+        const recaptcha = (window as Window & { recaptchaVerifier?: RecaptchaVerifier }).recaptchaVerifier;
+        if (!recaptcha) {
+          throw new Error("Recaptcha verifier not ready.");
+        }
+        await recaptcha.render();
+        const result = await signInWithPhoneNumber(auth, normalizedPhone, recaptcha);
+        setConfirmation(result);
+        setOtpSent(true);
+      } catch (err: any) {
+        const errCode = err?.code || "";
+        const errMsg = err?.message || "";
+        if (isDev && (errCode.includes("billing-not-enabled") || errMsg.includes("billing-not-enabled"))) {
+          // Dev fallback to mock!
+          console.warn("Firebase phone auth requires billing. Falling back to local mock authentication.");
+          setIsMockFallback(true);
+          setOtpSent(true);
+          setOtp("123456");
+        } else {
+          setError(err instanceof Error ? err.message : "Failed to send OTP.");
+        }
+      } finally {
+        setSubmitting(false);
+      }
       return;
     }
-    await handleSendOtp();
+
+    // Verify OTP
+    try {
+      if (!confirmation) {
+        throw new Error("No verification code confirmation available.");
+      }
+      const userCredential = await confirmation.confirm(otp);
+      const nextUser = userCredential.user;
+
+      if (mode === "signup") {
+        const safeAge = Number(age);
+        if (!name.trim() || !normalizedPhone || !Number.isFinite(safeAge) || safeAge <= 0 || !state) {
+          setError("Please fill in all onboarding fields.");
+          setSubmitting(false);
+          return;
+        }
+        setProfile((p) => ({
+          ...p,
+          name: name.trim(),
+          phone: normalizedPhone,
+          age: safeAge,
+          state,
+        }));
+      }
+
+      setUser(nextUser);
+      localStorage.setItem("haqsetu_current_uid", nextUser.uid);
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("haqsetu-auth-change"));
+      }
+    } catch (err: any) {
+      setError(err instanceof Error ? err.message : "Failed to verify OTP.");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   if (!user || !isProfileComplete) {
@@ -304,7 +324,7 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
                 <h1 className="mt-1 text-2xl font-bold text-slate-900">
                   {isOnboarding
                     ? (lang === "hi" ? "प्रोफ़ाइल पूरी करें" : "Complete your profile")
-                    : (mode === "signup" ? t.authTitle : (lang === "hi" ? "खाते में साइन इन करें" : "Sign in to your account"))}
+                    : (mode === "signup" ? t.authTitle : (lang === "hi" ? "खाते में लॉगिन करें" : "Login to your account"))}
                 </h1>
                 {isOnboarding && (
                   <p className="text-xs text-slate-500 mt-1">
@@ -318,14 +338,22 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
                 <div className="flex rounded-lg bg-slate-100 p-1 text-sm">
                   <button
                     type="button"
-                    onClick={() => setMode("signup")}
+                    onClick={() => {
+                      setMode("signup");
+                      setOtpSent(false);
+                      setError("");
+                    }}
                     className={`rounded-md px-3 py-1.5 font-semibold ${mode === "signup" ? "bg-white text-emerald-700" : "text-slate-600"}`}
                   >
                     {t.authSignup}
                   </button>
                   <button
                     type="button"
-                    onClick={() => setMode("signin")}
+                    onClick={() => {
+                      setMode("signin");
+                      setOtpSent(false);
+                      setError("");
+                    }}
                     className={`rounded-md px-3 py-1.5 font-semibold ${mode === "signin" ? "bg-white text-emerald-700" : "text-slate-600"}`}
                   >
                     {t.authSignin}
@@ -342,7 +370,7 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
               
               {!isOnboarding && (
                 <div>
-                  <label className="text-sm font-medium text-slate-700">Phone number</label>
+                  <label className="text-sm font-medium text-slate-700 font-bold">Phone number</label>
                   <input
                     type="tel"
                     value={phone}
@@ -350,13 +378,14 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
                     className="mt-1 w-full rounded-2xl border border-slate-300 px-3 py-2.5 text-sm outline-none ring-0 focus:border-emerald-500 font-bold"
                     placeholder="+91 98765 43210"
                     required
+                    disabled={otpSent}
                   />
                 </div>
               )}
 
               {!isOnboarding && otpSent && (
                 <div>
-                  <label className="text-sm font-medium text-slate-700">OTP</label>
+                  <label className="text-sm font-medium text-slate-700 font-bold">OTP</label>
                   <input
                     type="text"
                     inputMode="numeric"
@@ -421,7 +450,9 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
                   ? t.authLoading 
                   : isOnboarding 
                     ? (lang === "hi" ? "प्रोफ़ाइल पूरी करें" : "Complete Profile") 
-                    : mode === "signup" ? t.authSignup : t.authSignin}
+                    : !otpSent
+                      ? (lang === "hi" ? "OTP प्राप्त करें" : "Get OTP")
+                      : mode === "signup" ? t.authSignup : t.authSignin}
               </button>
             </form>
 
@@ -432,7 +463,7 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
                   if (auth) {
                     await signOut(auth).catch(() => {});
                   }
-                  clearAll();
+                  clearSession();
                   window.location.reload();
                 }}
                 className="mt-4 w-full text-center text-xs font-semibold text-rose-600 hover:underline"
