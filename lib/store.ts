@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { Profile } from "./rules/types";
 
 // Privacy-first persistence. Everything lives in the browser's localStorage on
@@ -39,6 +39,12 @@ function useLocal<T>(key: string, initial: T): [T, (v: T | ((p: T) => T)) => voi
   const [loaded, setLoaded] = useState(false);
   const initialRef = useRef(initial);
   initialRef.current = initial;
+  // The current key and value, read inside the setter so writes always target
+  // the live key without re-creating the setter on every change.
+  const keyRef = useRef(key);
+  keyRef.current = key;
+  const valRef = useRef(val);
+  valRef.current = val;
 
   useEffect(() => {
     let cancelled = false;
@@ -46,17 +52,15 @@ function useLocal<T>(key: string, initial: T): [T, (v: T | ((p: T) => T)) => voi
     const load = () => {
       try {
         const s = localStorage.getItem(key);
-        if (s) {
-          const parsed = JSON.parse(s) as T;
-          if (!cancelled) {
-            setVal(parsed);
-          }
-        } else if (!cancelled) {
-          setVal(initialRef.current);
+        const next = s ? (JSON.parse(s) as T) : initialRef.current;
+        if (!cancelled) {
+          setVal(next);
+          valRef.current = next;
         }
       } catch {
         if (!cancelled) {
           setVal(initialRef.current);
+          valRef.current = initialRef.current;
         }
       } finally {
         if (!cancelled) {
@@ -82,16 +86,23 @@ function useLocal<T>(key: string, initial: T): [T, (v: T | ((p: T) => T)) => voi
     };
   }, [key]);
 
-  useEffect(() => {
-    if (!loaded) return;
+  // Persist only on explicit updates, writing to the CURRENT key. There is no
+  // auto-persist effect on key change — that previously overwrote a freshly
+  // loaded scoped key (e.g. right after sign-in) with stale state.
+  const update = useCallback((next: T | ((p: T) => T)) => {
+    const resolved = typeof next === "function" ? (next as (p: T) => T)(valRef.current) : next;
+    valRef.current = resolved;
+    setVal(resolved);
     try {
-      localStorage.setItem(key, JSON.stringify(val));
+      if (typeof window !== "undefined") {
+        localStorage.setItem(keyRef.current, JSON.stringify(resolved));
+      }
     } catch {
       /* ignore */
     }
-  }, [key, val, loaded]);
+  }, []);
 
-  return [val, setVal, loaded];
+  return [val, update, loaded];
 }
 
 export function useProfile() {
