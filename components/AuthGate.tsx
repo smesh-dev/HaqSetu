@@ -10,7 +10,12 @@ import {
   type User,
 } from "firebase/auth";
 import { auth, isFirebaseConfigured } from "@/lib/firebase";
-import { useProfile, clearAll, clearSession } from "@/lib/store";
+import { useProfile, clearAll, clearSession, writeProfileForUid } from "@/lib/store";
+
+// Hackathon demo account — fully local, no Firebase / SMS billing required.
+const DEMO_PHONE_DIGITS = "9999888800";
+const DEMO_OTP = "543210";
+const DEMO_UID = "demo-uid-9999888800";
 import { T } from "@/lib/i18n";
 import type { StateId } from "@/lib/rules/types";
 
@@ -193,6 +198,51 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
       return;
     }
 
+    // Hackathon demo account — works in every environment, no SMS/billing needed.
+    const phoneDigits = normalizedPhone.replace(/\D/g, "");
+    const isDemoAccount = phoneDigits === DEMO_PHONE_DIGITS || phoneDigits === `91${DEMO_PHONE_DIGITS}`;
+    if (isDemoAccount) {
+      setSubmitting(true);
+      if (!otpSent) {
+        setOtpSent(true);
+        setSubmitting(false);
+        return;
+      }
+
+      if (otp.trim() !== DEMO_OTP) {
+        setError(`Invalid OTP. For the demo account, please use ${DEMO_OTP}.`);
+        setSubmitting(false);
+        return;
+      }
+
+      if (mode === "signup") {
+        const safeAge = Number(age);
+        if (!name.trim() || !Number.isFinite(safeAge) || safeAge <= 0 || !state) {
+          setError("Please fill in all onboarding fields.");
+          setSubmitting(false);
+          return;
+        }
+        // Write straight to the uid-scoped key so it survives the key switch below.
+        writeProfileForUid(DEMO_UID, (p) => ({
+          ...p,
+          name: name.trim(),
+          phone: normalizedPhone,
+          age: safeAge,
+          state,
+        }));
+      }
+
+      localStorage.setItem("haqsetu_mock_user", "true");
+      localStorage.setItem("haqsetu_mock_phone", normalizedPhone);
+      localStorage.setItem("haqsetu_current_uid", DEMO_UID);
+      setUser({ uid: DEMO_UID, phoneNumber: normalizedPhone } as any);
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("haqsetu-auth-change"));
+      }
+      setSubmitting(false);
+      return;
+    }
+
     const mustUseMock = !isFirebaseConfigured || !auth || isMockFallback;
 
     if (mustUseMock && isDev) {
@@ -223,17 +273,15 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
           setSubmitting(false);
           return;
         }
-        setProfile((p) => ({
+        writeProfileForUid(mockUid, (p) => ({
           ...p,
           name: name.trim(),
           phone: normalizedPhone,
           age: safeAge,
           state,
         }));
-        setUser({ uid: mockUid, phoneNumber: normalizedPhone } as any);
-      } else {
-        setUser({ uid: mockUid, phoneNumber: normalizedPhone } as any);
       }
+      setUser({ uid: mockUid, phoneNumber: normalizedPhone } as any);
 
       if (typeof window !== "undefined") {
         window.dispatchEvent(new Event("haqsetu-auth-change"));
@@ -260,12 +308,31 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
       } catch (err: any) {
         const errCode = err?.code || "";
         const errMsg = err?.message || "";
-        if (isDev && (errCode.includes("billing-not-enabled") || errMsg.includes("billing-not-enabled"))) {
-          // Dev fallback to mock!
-          console.warn("Firebase phone auth requires billing. Falling back to local mock authentication.");
+        const isBilling = errCode.includes("billing-not-enabled") || errMsg.includes("billing-not-enabled");
+        if (isDev && isBilling) {
+          // Dev fallback to mock auth so local sign-in keeps working without the Blaze plan.
+          console.warn("Firebase phone auth requires the Blaze billing plan. Falling back to local mock authentication (OTP: 123456).");
           setIsMockFallback(true);
           setOtpSent(true);
           setOtp("123456");
+        } else if (isBilling) {
+          setError(
+            lang === "hi"
+              ? "फ़ोन साइन-इन अभी उपलब्ध नहीं है। कृपया बाद में पुनः प्रयास करें।"
+              : "Phone sign-in is temporarily unavailable (SMS service not enabled). Please try again later.",
+          );
+        } else if (errCode.includes("invalid-phone-number")) {
+          setError(
+            lang === "hi"
+              ? "अमान्य फ़ोन नंबर। कृपया देश कोड सहित दर्ज करें, जैसे +91…"
+              : "Invalid phone number. Please include the country code, e.g. +91…",
+          );
+        } else if (errCode.includes("too-many-requests")) {
+          setError(
+            lang === "hi"
+              ? "बहुत अधिक प्रयास। कृपया कुछ देर बाद पुनः प्रयास करें।"
+              : "Too many attempts. Please try again in a little while.",
+          );
         } else {
           setError(err instanceof Error ? err.message : "Failed to send OTP.");
         }
@@ -290,7 +357,7 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
           setSubmitting(false);
           return;
         }
-        setProfile((p) => ({
+        writeProfileForUid(nextUser.uid, (p) => ({
           ...p,
           name: name.trim(),
           phone: normalizedPhone,

@@ -115,6 +115,27 @@ export function useProfile() {
   return useLocal<Profile>(profileKey, initialProfile);
 }
 
+// Write profile fields directly to the uid-scoped localStorage key. Used at
+// sign-in / onboarding time, when the useProfile() hook's scoped key may not
+// have caught up with the freshly-set current_uid yet (a React state race that
+// otherwise writes onboarding data to the wrong key and loses it).
+export function writeProfileForUid(uid: string, updater: (p: Profile) => Profile) {
+  if (typeof window === "undefined") return;
+  const key = uid ? `haqsetu_profile:${uid}` : "haqsetu_profile";
+  let current: Profile = initialProfile;
+  try {
+    const s = localStorage.getItem(key);
+    if (s) current = { ...initialProfile, ...(JSON.parse(s) as Profile) };
+  } catch {
+    /* ignore */
+  }
+  try {
+    localStorage.setItem(key, JSON.stringify(updater(current)));
+  } catch {
+    /* ignore */
+  }
+}
+
 export type TrackStatus = "to_start" | "applied" | "under_review" | "approved" | "received" | "rejected";
 export const TRACK_STATUSES: TrackStatus[] = ["to_start", "applied", "under_review", "approved", "received", "rejected"];
 
