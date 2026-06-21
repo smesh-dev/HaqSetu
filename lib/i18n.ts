@@ -27,6 +27,12 @@ export const T = {
     profileState: "State",
     profileEmail: "Email",
     logout: "Log out",
+    editProfile: "Edit Profile",
+    saveProfile: "Save Changes",
+    cancel: "Cancel",
+    uploadPhoto: "Upload Photo",
+    changePhoto: "Change Photo",
+    deletePhoto: "Delete Photo",
 
     // home
     homeHeadline: "One place to claim every benefit you're owed.",
@@ -141,6 +147,12 @@ export const T = {
     profileState: "राज्य",
     profileEmail: "ईमेल",
     logout: "लॉग आउट",
+    editProfile: "प्रोफ़ाइल बदलें",
+    saveProfile: "बदलाव सहेजें",
+    cancel: "रद्द करें",
+    uploadPhoto: "फ़ोटो अपलोड करें",
+    changePhoto: "फ़ोटो बदलें",
+    deletePhoto: "फ़ोटो हटाएँ",
 
     homeHeadline: "हर वह लाभ जो आपका हक़ है — एक ही जगह पाएँ।",
     homeSub: "जिन सरकारी योजनाओं के आप पात्र हो सकते हैं उन्हें ढूँढें, अपने दस्तावेज़ ठीक करें ताकि आवेदन अस्वीकार न हो, और हर आवेदन को अंत तक ट्रैक करें — सरल हिंदी या अंग्रेज़ी में।",

@@ -139,6 +139,7 @@ export interface Profile {
   household: Household;
   documentsHave: DocId[];
   docDetails?: DocDetails;
+  photoBase64?: string;
 }
 
 export type Verdict = "likely_eligible" | "maybe_eligible" | "likely_not" | "need_info";

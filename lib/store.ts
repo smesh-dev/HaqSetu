@@ -30,7 +30,7 @@ function getScopedStorageKey(baseKey: string) {
     return baseKey;
   }
 
-  const userId = window.localStorage.getItem("haqsetu_current_uid");
+  const userId = window.sessionStorage.getItem("haqsetu_current_uid");
   return userId ? `${baseKey}:${userId}` : baseKey;
 }
 
@@ -171,6 +171,11 @@ export function useAIConsent() {
 
 export function clearAll() {
   try {
+    if (typeof window !== "undefined") {
+      sessionStorage.removeItem("haqsetu_current_uid");
+      sessionStorage.removeItem("haqsetu_mock_user");
+      sessionStorage.removeItem("haqsetu_mock_phone");
+    }
     localStorage.removeItem("haqsetu_current_uid");
     localStorage.removeItem("haqsetu_profile");
     localStorage.removeItem("haqsetu_tracked");
